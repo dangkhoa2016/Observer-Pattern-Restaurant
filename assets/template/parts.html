@@ -1,0 +1,87 @@
+<div class='modal fade' tabindex='-1' id='modal-confirm'>
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+      <div class='modal-header'>
+        <h5 class='modal-title'>Confirm</h5>
+        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+      </div>
+      <div class='modal-body'>
+      </div>
+      <div class='modal-footer justify-content-between'>
+        <label></label>
+        <div>
+          <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>
+            Close
+          </button>
+          <button type='button' class='btn btn-sure btn-danger'>Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='modal fade' tabindex='-1' id='modal-foods'>
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+      <div class='modal-header'>
+        <h5 class='modal-title'>Add foods</h5>
+        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+      </div>
+      <div class='modal-body'>
+        <div class='list-group' id='food-list'></div>
+      </div>
+      <div class='modal-footer justify-content-between'>
+        <label></label>
+        <div>
+          <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>
+            Close
+          </button>
+          <button type='button' class='btn btn-order btn-primary'>Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='modal fade' id='welcome-modal' tabindex='-1' aria-labelledby='welcome-modal' aria-hidden='true'>
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+      <div class='modal-header'>
+        <h5 class='modal-title' id='exampleModalLabel'>Welcome !</h5>
+        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+      </div>
+      <div class='modal-body'>
+        Click on <code>Add foods</code> button and select some foods to see how it working....
+      </div>
+      <div class='modal-footer'>
+        <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class='container-fluid mt-2' id='main-app'>
+  <div class='row'>
+    <div class='col-md-9'>
+      <div id='chef-holder'></div>
+    </div>
+
+    <div class='col-md-3'>
+      <div id='assistant'></div>
+    </div>
+  </div>
+
+  <div class='row mt-4'>
+    <div class='col-md'>
+      <div id='table-holder'></div>
+    </div>
+  </div>
+</div>
+
+<div class='card hide-panel' id='panel-action'>
+  <h5 class='card-header'>Action</h5>
+  <div class='card-body'>
+    <a href='javascript:void(0);' class='btn btn-warning btn-add-table'>Add table</a>
+    <a class='btn btn-success btn-action-main' href='#' role='button'><span class='fas fa-atom'></span></a>
+  </div>
+</div>

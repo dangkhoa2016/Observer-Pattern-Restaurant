@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+
+    <title>Observer Pattern - Restaurant</title>
+
+    <link rel='icon' type='image/x-icon' href='/assets/images/favicon.ico' />
+    <link rel='icon' type='image/png' href='/assets/images/favicon.png' />
+
+    <!-- import the webpage's stylesheet -->
+    <link rel='stylesheet' href='/assets/css/styles.css' />
+  </head>
+  <body>
+    <panel-action></panel-action>
+    
+    <main-app></main-app>
+
+    <div id='modal-holder'>
+      <welcome-modal></welcome-modal>
+      <modal-foods></modal-foods>
+      <modal-confirm></modal-confirm>
+    </div>
+
+
+    <a href='#' class='to-top text-success d-none'>
+      <i class='far fa-arrow-alt-circle-up fa-2x'></i>
+    </a>
+
+    <script src='https://cdn.jsdelivr.net/combine/npm/jquery@3.6.3,npm/handlebars@4.7.7/dist/handlebars.min.js,npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js'></script>
+    <script
+      src='https://cdnjs.cloudflare.com/ajax/libs/draggabilly/2.3.0/draggabilly.pkgd.min.js'
+      integrity='sha512-wrqGZ9AlrZss+bvssqlLBHyZISI7FVl0JoBDZ4frb4Udgj1IDcip4ausWVzf80m52bdDv5sihhtBsjZgraoQhQ=='
+      crossorigin='anonymous'></script>
+
+    <!-- import the webpage's javascript file -->
+    <script src='/assets/js/utilities/template.js' defer></script>
+    <script src='/assets/js/utilities/helper.js' defer></script>
+    <script src='/assets/js/models/food-list.js' defer></script>
+    <script src='/assets/js/models/panel-action.js' defer></script>
+    <script src='/assets/js/models/progress.js' defer></script>
+    <script src='/assets/js/models/chef.js' defer></script>
+    <script src='/assets/js/models/order.js' defer></script>
+    <script src='/assets/js/models/food.js' defer></script>
+    <script src='/assets/js/models/assistant.js' defer></script>
+    <script src='/assets/js/models/table.js' defer></script>
+    <script src='/assets/js/models/restaurant.js' defer></script>
+
+    <script src='/assets/js/script.js' defer></script>
+  </body>
+</html>

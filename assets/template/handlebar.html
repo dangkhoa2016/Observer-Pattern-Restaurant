@@ -1,0 +1,111 @@
+<div id='tmp-table'>
+  <div class='card w-20 draggable float-start'>
+    <h5 class='card-header'>Table: {{id}}</h5>
+    <div class='card-body'>
+      <h6 class='card-title'>{{slogan}}</h5>
+      <div class='food-list'></div>
+      <div class='action mt-2'>
+        <a href='#' class='btn btn-sm btn-add-foods float-start btn-primary'>Add foods</a>
+        <div class='float-end'>
+          <a href='#' data-bs-toggle='tooltip' title='Remove this table' class='btn btn-sm btn-remove btn-dark'>
+            <span class='fas fa-trash-alt'></span>
+          </a>
+          <a
+            href='#'
+            data-bs-toggle='tooltip'
+            title='Subscribe news from Assistant'
+            class='btn btn-sm btn-subscribe d-none btn-success'>
+            <span class='fas fa-rss'></span>
+          </a>
+          <a
+            href='#'
+            data-bs-toggle='tooltip'
+            title='Unsubscribe news from Assistant'
+            class='btn btn-sm btn-unsubscribe btn-danger'>
+            <span class='fas fa-eye-slash'></span>
+          </a>
+        </div>
+        <div class='clearfix'></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id='tmp-food-list'>
+  {{#each orders}}
+  <div class='order{{this.id}}'>
+    <button type='button' class='btn btn-sm w-100 {{this.food.color.css}}'>
+      {{this.food.name}}
+    </button>
+    <div class='eat-progress'></div>
+  </div>
+  {{/each}}
+</div>
+
+<div id='tmp-food'>
+  <div class='list-group-item'>
+    <div class='d-flex w-100 justify-content-between'>
+      <span class=''>
+        <span class='food-status {{status_class}}'></span>
+        <label>{{status}}</label>
+      </span>
+      <a class='btn btn-sm {{button_class}}'>{{name}}</a>
+    </div>
+  </div>
+</div>
+
+<div id='tmp-chef'>
+  <div class='card w-25 chef float-start'>
+    <h5 class='card-title p-2'>Chef: {{name}}</h5>
+    <div class='card-body px-2 py-0'>
+      <div class='cook-progress'></div>
+    </div>
+    <div class='card-footer bg-info text-white'>
+      Slogan: "{{slogan}}"
+    </div>
+  </div>
+</div>
+
+<div id='tmp-assistant'>
+  <div class='card assistant' data-bs-placement='left'>
+    <h5 class='card-header bg-warning'>Assistant</h5>
+    <div class='card-body'>This is sample log</div>
+    <div class='card-footer p-0'></div>
+  </div>
+</div>
+
+<div id='tmp-assistant-receive'>
+  <div class='info bg-{{bg}} mb-3 p-2'>
+    Chef {{chef_id}} has {{action}}
+    <button type='button' class='btn btn-sm w-100 {{order.food.color.css}}'>
+      {{order.food.name}}
+    </button>
+    <br/>
+    at {{date}}
+  </div>
+</div>
+
+<div id='tmp-progress'>
+  <div class='pg-test mb-2'>
+    <div class='input-group'>
+      <div class='form-control p-1'><div class='progress'></div></div>
+      <button class='btn btn-info btn-complete' type='button' title='Test button: click to complete progress'>
+        <span class='{{icon}}'></span>
+      </button>
+    </div>
+    <p class='text-muted mb-0'>
+      {{{html}}}
+    </p>
+  </div>
+</div>
+
+<div id='tmp-progress-bar'>
+  <div
+    class='progress-bar progress-bar-striped progress-bar-animated'
+    role='progressbar'
+    style='width: {{percent}}%;background-color: {{color}}'
+    aria-valuenow='{{percent}}'
+    aria-valuemin='0'
+    aria-valuemax='100'
+  ></div>
+</div>
