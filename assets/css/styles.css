@@ -57,13 +57,13 @@
   right: 10px;
 }
 
-.chef.hight-light {
+.chef.highlight {
   box-shadow: 0 0 0 0.2rem rgba(225, 83, 97, 0.5);
 }
-.assistant.hight-light {
+.assistant.highlight {
   box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5);
 }
-.draggable.hight-light {
+.draggable.highlight {
   box-shadow: 0 0 0 0.2rem rgba(222, 170, 12, 0.5);
 }
 .food-list { min-height: 20px; }

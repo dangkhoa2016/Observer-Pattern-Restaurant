@@ -8,7 +8,7 @@ class PanelAction {
 
   constructor(restaurant) {
     this.#restaurant = restaurant;
-    const root = $('#modal-holder');
+    let root = $('#modal-holder');
     if (root.length === 0) root = $('body');
     this.#root = root;
 
@@ -27,6 +27,20 @@ class PanelAction {
       .modal('show');
   }
 
+  destroy() {
+    $('.btn-action-main', this.#panel_action).off('click.panel-action');
+    $('.btn-add-table', this.#panel_action).off('click.panel-action');
+
+    if (this.#confirm) {
+      this.#confirm.find('.btn-sure').off('click.panel-action');
+      this.#confirm.modal('hide');
+      this.#confirm.remove();
+    }
+
+    this.#confirm = null;
+    this.#call_back = null;
+  }
+
 
   // private methods
 
@@ -36,12 +50,14 @@ class PanelAction {
 
     t.#confirm = $('#modal-confirm');
 
-    t.#confirm.find('.btn-sure').click(function(e) {
-      e.preventDefault();
+    t.#confirm.find('.btn-sure')
+      .off('click.panel-action')
+      .on('click.panel-action', function(e) {
+        e.preventDefault();
 
-      if (t.#call_back) t.#call_back();
-      t.#confirm.modal('hide');
-    });
+        if (t.#call_back) t.#call_back();
+        t.#confirm.modal('hide');
+      });
 
     t.#root.append(t.#confirm);
 
@@ -50,31 +66,35 @@ class PanelAction {
 
   #init_add_table() {
     const t = this;
-    $('.btn-add-table', t.#panel_action).click(function(e) {
-      e.preventDefault();
+    $('.btn-add-table', t.#panel_action)
+      .off('click.panel-action')
+      .on('click.panel-action', function(e) {
+        e.preventDefault();
 
-      t.#restaurant.add_table();
-    });
+        t.#restaurant.add_table();
+      });
   }
 
   #bind_click() {
     const t = this;
     const pa = t.#panel_action;
-    $('.btn-action-main', pa).click(function(e) {
-      e.preventDefault();
+    $('.btn-action-main', pa)
+      .off('click.panel-action')
+      .on('click.panel-action', function(e) {
+        e.preventDefault();
 
-      let left = 10;
-      const isHide = pa.hasClass('hide-panel');
-      if (isHide === false) {
-        const wp = pa.outerWidth();
-        left = -wp;
-      }
+        let left = 10;
+        const isHide = pa.hasClass('hide-panel');
+        if (isHide === false) {
+          const wp = pa.outerWidth();
+          left = -wp;
+        }
 
-      pa.stop().animate({ left }, function() {
-        if (isHide) pa.removeClass('hide-panel');
-        else pa.addClass('hide-panel');
+        pa.stop().animate({ left }, function() {
+          if (isHide) pa.removeClass('hide-panel');
+          else pa.addClass('hide-panel');
+        });
       });
-    });
   }
 
   // private methods

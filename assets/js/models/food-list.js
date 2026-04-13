@@ -9,7 +9,7 @@ class FoodList {
   #observer_assistants = [];
 
   constructor() {
-    const root = $('#modal-holder');
+    let root = $('#modal-holder');
     if (root.length === 0) root = $('body');
     this.#root = root;
 
@@ -45,25 +45,39 @@ class FoodList {
     });
   }
 
+  destroy() {
+    if (this.#list && this.#list.length > 0) {
+      $('.btn-order', this.#list).off('click.food-list');
+      this.#list.modal('hide');
+      this.#list.remove();
+    }
+
+    this.#list = null;
+    this.#current_table = null;
+    this.#observer_assistants = [];
+  }
+
 
   // private methods
 
   #bind_click() {
     const t = this;
-    $('.btn-order', t.#list).click(function(e) {
-      e.preventDefault();
+    $('.btn-order', t.#list)
+      .off('click.food-list')
+      .on('click.food-list', function(e) {
+        e.preventDefault();
 
-      const orders = t.#get_orders();
-      if (orders.length > 0) {
-        t.#current_table.add_orders(orders);
-        t.notify(t.#current_table.id, orders);
-        $('.modal-footer label', t.#list).text('');
-        t.#list.modal('hide');
-        return;
-      } 
-      
-      $('.modal-footer label', t.#list).text('Please select at least one food !');
-    });
+        const orders = t.#get_orders();
+        if (orders.length > 0) {
+          t.#current_table.add_orders(orders);
+          t.notify(t.#current_table.id, orders);
+          $('.modal-footer label', t.#list).text('');
+          t.#list.modal('hide');
+          return;
+        }
+
+        $('.modal-footer label', t.#list).text('Please select at least one food !');
+      });
   }
 
   #get_orders() {

@@ -11,8 +11,11 @@ class Table {
   #orders = [];
   #timeout_unhighlight = null;
   #progress = [];
-  #fn_help = null;
+  #fn_remove = null;
   #slogan = '';
+  #assistant = null;
+  #assistant_subscription = null;
+  #is_subscribed = false;
 
   constructor(options = {}) {
     this.#holder = options.holder;
@@ -20,18 +23,29 @@ class Table {
     this.id = Table.#id_increase;
 
     this.#food_list = options.food_list;
-    this.#fn_help = options.fn_help;
+    this.#fn_remove = options.fn_remove;
+    this.#assistant = options.assistant || null;
     this.#slogan = Table.#random_slogan();
+    this.#assistant_subscription = this.#create_assistant_subscription();
 
     this.#render();
     this.#init_table();
+    this.subscribe_to_assistant();
   }
 
   destroy() {
-    if (this.#fn_help) this.#fn_help(null, false);
-    $('[data-bs-toggle="tooltip"]', this.#element).tooltip('dispose');
-    this.#element.tooltip('dispose');
-    this.#element.remove();
+    this.unsubscribe_from_assistant();
+    this.#clear_timeout();
+    this.#progress.slice().forEach(progress => progress.destroy());
+    this.#progress = [];
+
+    if (this.#element) {
+      this.#element.find('.btn-add-foods, .btn-remove, .btn-unsubscribe, .btn-subscribe').off('click.table');
+      $('[data-bs-toggle="tooltip"]', this.#element).tooltip('dispose');
+      this.#element.tooltip('dispose');
+      this.#element.remove();
+    }
+
     this.#element = null;
   }
 
@@ -43,7 +57,7 @@ class Table {
   receive_food(order) {
     const t = this;
 
-    t.#hight_light_test();
+    t.#highlight_test();
 
     const indx = t.#get_order_index(order);
     if (indx === -1)
@@ -104,39 +118,45 @@ class Table {
 
   #bind_click() {
     const t = this;
-    t.#element.find('.btn-add-foods').click(function(e) {
-      e.preventDefault();
-      t.#food_list.show_menu_for(t);
-    });
+    t.#element.find('.btn-add-foods')
+      .off('click.table')
+      .on('click.table', function(e) {
+        e.preventDefault();
+        t.#food_list.show_menu_for(t);
+      });
 
-    t.#element.find('.btn-remove').click(function(e) {
-      e.preventDefault();
-      if (t.#fn_help) t.#fn_help('remove', t);
-    });
+    t.#element.find('.btn-remove')
+      .off('click.table')
+      .on('click.table', function(e) {
+        e.preventDefault();
+        if (t.#fn_remove) t.#fn_remove(t);
+      });
 
     const btn_unsubscribe = t.#element.find('.btn-unsubscribe');
     const btn_subscribe = t.#element.find('.btn-subscribe');
 
     const toggle_subscribe = function(subscribe) {
-      if (t.#fn_help) t.#fn_help(null, subscribe);
-      if (subscribe) {
-        btn_subscribe.addClass('d-none');
-        btn_unsubscribe.removeClass('d-none');
-      } else {
-        btn_subscribe.removeClass('d-none');
-        btn_unsubscribe.addClass('d-none');
-      }
+      if (subscribe) t.subscribe_to_assistant();
+      else t.unsubscribe_from_assistant();
+
+      t.#sync_subscription_buttons();
     };
 
-    btn_unsubscribe.click(function(e) {
-      e.preventDefault();
-      toggle_subscribe(false);
-    });
+    btn_unsubscribe
+      .off('click.table')
+      .on('click.table', function(e) {
+        e.preventDefault();
+        toggle_subscribe(false);
+      });
 
-    btn_subscribe.click(function(e) {
-      e.preventDefault();
-      toggle_subscribe(true);
-    });
+    btn_subscribe
+      .off('click.table')
+      .on('click.table', function(e) {
+        e.preventDefault();
+        toggle_subscribe(true);
+      });
+
+    t.#sync_subscription_buttons();
   }
 
   #remove_order(order) {
@@ -165,16 +185,21 @@ class Table {
     return result;
   }
 
-  #hight_light_test(unhighlight = false) {
+  #highlight_test(unhighlight = false) {
     const t = this;
-    const call_func = function() { t.#element.removeClass('hight-light').tooltip('hide'); }
+    const call_func = function() {
+      if (t.#element) t.#element.removeClass('highlight').tooltip('hide');
+    };
 
     if (unhighlight) {
       call_func();
       t.#clear_timeout();
     }
 
-    t.#element.addClass('hight-light').tooltip('show');
+    if (!t.#element)
+      return;
+
+    t.#element.addClass('highlight').tooltip('show');
     t.#clear_timeout();
 
     t.#timeout_unhighlight = setTimeout(call_func, 4000);
@@ -186,6 +211,52 @@ class Table {
 
     clearTimeout(this.#timeout_unhighlight);
     this.#timeout_unhighlight = null;
+  }
+
+  #create_assistant_subscription() {
+    return (order) => {
+      if (!order || order.table_id !== this.id)
+        return;
+
+      this.receive_food(order);
+    };
+  }
+
+  #sync_subscription_buttons() {
+    if (!this.#element)
+      return;
+
+    const btn_unsubscribe = this.#element.find('.btn-unsubscribe');
+    const btn_subscribe = this.#element.find('.btn-subscribe');
+
+    if (this.#is_subscribed) {
+      btn_subscribe.addClass('d-none');
+      btn_unsubscribe.removeClass('d-none');
+      return;
+    }
+
+    btn_subscribe.removeClass('d-none');
+    btn_unsubscribe.addClass('d-none');
+  }
+
+  subscribe_to_assistant() {
+    if (!this.#assistant || !this.#assistant_subscription || this.#is_subscribed)
+      return false;
+
+    this.#assistant.subscribe(this.#assistant_subscription);
+    this.#is_subscribed = true;
+    this.#sync_subscription_buttons();
+    return true;
+  }
+
+  unsubscribe_from_assistant() {
+    if (!this.#assistant || !this.#assistant_subscription || !this.#is_subscribed)
+      return false;
+
+    this.#assistant.unsubscribe(this.#assistant_subscription);
+    this.#is_subscribed = false;
+    this.#sync_subscription_buttons();
+    return true;
   }
 
   static #random_slogan() {

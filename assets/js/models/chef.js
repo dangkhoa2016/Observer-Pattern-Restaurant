@@ -1,5 +1,9 @@
 class Chef {
   static #id_increase = 0;
+  static STATUS = Object.freeze({
+    IDLE: 1,
+    BUSY: 2
+  });
   static template = null;
   static #slogans = ['Bring Out The Foodie In You.', 'Find Happiness In Cooking.',
     'Awaken Your Inner Chef.', 'Bring Out The Chef In You.'];
@@ -19,7 +23,7 @@ class Chef {
   constructor(name, holder) {
     Chef.#id_increase += 1;
     this.id = Chef.#id_increase;
-    this.status = 1;
+    this.status = Chef.STATUS.IDLE;
     this.#slogan = Chef.#random_slogan();
     if (holder) this.#holder = $(holder);
 
@@ -34,13 +38,13 @@ class Chef {
 
   process_order(order) {
     const t = this;
-    if (t.#current_order && t.#current_order.status === 1)
+    if (t.status === Chef.STATUS.BUSY || (t.#current_order && t.#current_order.status !== Order.STATUS.DONE))
       return false;
 
-    //this.#hight_light_test(true);
+    //this.#highlight_test(true);
 
-    this.#update_status(2); // cooking
-    order.status = 2; // processing
+    this.#update_status(Chef.STATUS.BUSY);
+    order.status = Order.STATUS.PROCESSING;
     t.#current_order = order;
 
     const time_to_complete = Math.floor(Math.random() * 30) + 1;
@@ -57,21 +61,42 @@ class Chef {
         }
       })
     );
+
+    return true;
+  }
+
+  destroy() {
+    this.#clear_timeout();
+    this.#progress.slice().forEach(progress => progress.destroy());
+    this.#progress = [];
+    this.#observer_assistants = [];
+
+    if (this.#element) {
+      this.#element.remove();
+      this.#element = null;
+    }
+
+    this.#current_order = null;
   }
 
 
   // private methods
 
   #complete_order() {
-    this.#current_order.status = 3;
-    this.#update_status(1);
-    this.#hight_light_test();
-    this.notify(this.id, this.#current_order);
+    if (!this.#current_order)
+      return;
+
+    const completedOrder = this.#current_order;
+    completedOrder.status = Order.STATUS.DONE;
+    this.#current_order = null;
+    this.#update_status(Chef.STATUS.IDLE);
+    this.#highlight_test();
+    this.notify(this.id, completedOrder);
   }
 
   #update_status(status) {
     this.status = status;
-    this.#set_bg_process(status === 1);
+    this.#set_bg_process(status === Chef.STATUS.IDLE);
   }
 
   #set_bg_process(complete) {
@@ -79,9 +104,11 @@ class Chef {
     else this.#element.addClass('processing');
   }
 
-  #hight_light_test(unhighlight = false) {
+  #highlight_test(unhighlight = false) {
     const t = this;
-    const call_func = function() { t.#element.removeClass('hight-light'); };
+    const call_func = function() {
+      if (t.#element) t.#element.removeClass('highlight');
+    };
 
     if (unhighlight) {
       call_func();
@@ -89,7 +116,10 @@ class Chef {
     }
 
     t.#clear_timeout();
-    t.#element.addClass('hight-light');
+    if (!t.#element)
+      return;
+
+    t.#element.addClass('highlight');
     t.#timeout_unhighlight = setTimeout(call_func, 2000);
   }
 

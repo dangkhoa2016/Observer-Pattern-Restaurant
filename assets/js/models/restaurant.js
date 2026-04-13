@@ -16,31 +16,23 @@ class Restaurant {
 
   add_table() {
     const t = this;
-    const fn_subscribe = function(data) { tb.receive_food(data); };
-    const fn_help = function(type, table) {
-      if (type === 'remove') {
-        t.#panel_action.show_confirm(
-          'Are you sure to remove this table ?',
-          function() {
-            t.#remove_table(table);
-            table.destroy();
-          }
-        );
-        return;
-      }
-
-      // console.log('fn_help', tb, table);
-      if (table) t.#assistant.subscribe(fn_subscribe);
-      else t.#assistant.unsubscribe(fn_subscribe);
+    const fn_remove = function(table) {
+      t.#panel_action.show_confirm(
+        'Are you sure to remove this table ?',
+        function() {
+          t.#remove_table(table);
+          table.destroy();
+        }
+      );
     };
 
     const tb = new Table({
       holder: t.#table_holder,
       food_list: this.food_list,
-      fn_help
+      assistant: t.#assistant,
+      fn_remove
     });
 
-    t.#assistant.subscribe(fn_subscribe);
     t.tables.push(tb);
   }
 

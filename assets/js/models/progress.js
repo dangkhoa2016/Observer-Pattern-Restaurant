@@ -13,6 +13,7 @@ class Progress {
   #element = null;
   #current_part_index = 0;
   #reference = null;
+  #timeout_complete = null;
 
   constructor(options = {}) {
     this.#time_to_complete = (options.time_to_complete || 3) * 1000;
@@ -31,12 +32,16 @@ class Progress {
 
   destroy() {
     const t = this;
-    if (t.#button) t.#button = null;
+    t.#clear_timeout();
+    t.#clear_complete_timeout();
+    if (t.#button) {
+      t.#button.off('click.progress').tooltip('dispose');
+      t.#button = null;
+    }
     if (t.#element) {
       t.#element.remove();
       t.#element = null;
     }
-    t.#clear_timeout();
   }
 
 
@@ -112,13 +117,19 @@ class Progress {
 
   #call_complete() {
     const t = this;
-    let call_func = function() {
+    const call_func = function() {
       if (typeof t.#call_back_complete === 'function')
         t.#call_back_complete(t, t.#reference);
     };
 
     if (t.#element) {
-      setTimeout(() => {
+      t.#timeout_complete = setTimeout(() => {
+        t.#timeout_complete = null;
+        if (!t.#element) {
+          call_func();
+          return;
+        }
+
         t.#element.slideUp(() => { call_func(); });
       }, 1000);
       return;
@@ -135,18 +146,28 @@ class Progress {
     this.#timeout_next = null;
   }
 
+  #clear_complete_timeout() {
+    if (!this.#timeout_complete)
+      return;
+
+    clearTimeout(this.#timeout_complete);
+    this.#timeout_complete = null;
+  }
+
   #bind_click() {
     const t = this;
     if (!t.#button)
       return;
 
-    t.#button.click(function(e) {
-      e.preventDefault();
-      t.#button.tooltip('dispose');
+    t.#button
+      .off('click.progress')
+      .on('click.progress', function(e) {
+        e.preventDefault();
+        t.#button.tooltip('dispose');
 
-      t.#clear_timeout();
-      t.#do_step(true);
-    });
+        t.#clear_timeout();
+        t.#do_step(true);
+      });
   }
 
   // private methods

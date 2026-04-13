@@ -25,13 +25,17 @@
   // demo
   (new bootstrap.Modal(document.getElementById('welcome-modal'))).show();
 
-  clearOrphanTooltip = null;
-  clearOrphanTooltip = function() {
+  let clearOrphanTooltipTimeout = null;
+  const clearOrphanTooltip = function() {
     jQuery('.tooltip.show').remove();
-    if (typeof clearOrphanTooltip === 'function')
-      setTimeout(clearOrphanTooltip, 30000);
+    clearOrphanTooltipTimeout = setTimeout(clearOrphanTooltip, 30000);
   };
   clearOrphanTooltip();
+
+  $(window).on('beforeunload.app', function() {
+    if (clearOrphanTooltipTimeout)
+      clearTimeout(clearOrphanTooltipTimeout);
+  });
   // demo
 
 })();
