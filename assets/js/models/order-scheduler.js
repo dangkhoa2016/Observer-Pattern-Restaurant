@@ -2,7 +2,7 @@ class OrderScheduler {
   #orders = [];
   #statuses = null;
 
-  constructor(statuses = { PENDING: 1 }) {
+  constructor(statuses = typeof ORDER_STATUS !== 'undefined' ? ORDER_STATUS : { PENDING: 1 }) {
     this.#statuses = statuses;
   }
 

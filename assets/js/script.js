@@ -7,7 +7,12 @@
     number_test_tables: 2,
     number_chefs: 2,
   });
-  await restaurant.init();
+  try {
+    await restaurant.init();
+  } catch (error) {
+    Logger.error('Application bootstrap failed:', error);
+    return;
+  }
 
   const to_top = $('body > .to-top');
   $(window).scroll(function() {
@@ -28,7 +33,7 @@
   let clearOrphanTooltipTimeout = null;
   const clearOrphanTooltip = function() {
     jQuery('.tooltip.show').remove();
-    clearOrphanTooltipTimeout = setTimeout(clearOrphanTooltip, 30000);
+    clearOrphanTooltipTimeout = setTimeout(clearOrphanTooltip, APP_TIMEOUTS.TOOLTIP_SWEEP_MS);
   };
   clearOrphanTooltip();
 

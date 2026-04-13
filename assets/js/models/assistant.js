@@ -1,11 +1,10 @@
-class Assistant {
+class Assistant extends Observable {
   static template = null;
   static template_receive = null;
   static template_info = null;
 
   #chefs = [];
   #scheduler = null;
-  #timeout_to_send = 3;
   #holder = null;
   #element = null;
   #timeout_unhighlight = null;
@@ -14,12 +13,8 @@ class Assistant {
   #chef_subscriptions = new Map();
   #info_timeouts = new Set();
 
-  // each instance of the Observer class
-  // starts with an empty array of things (observers)
-  // that react to a state change
-  #observer_tables = [];
-
   constructor(chefs, holder) {
+    super();
     const t = this;
     t.#holder = holder;
     t.#scheduler = new OrderScheduler(Order.STATUS);
@@ -27,21 +22,13 @@ class Assistant {
     if (!chefs)
       return;
 
-    t.#chefs = chefs;
-    $.each(chefs, function(indx, chef) {
-      const onChefDone = function(chef_id, order) {
-        t.#chef_done(chef_id, order);
-      };
-
-      chef.subscribe(onChefDone);
-      t.#chef_subscriptions.set(chef.id, { chef, onChefDone });
-    });
+    t.#subscribe_to_chefs(chefs);
   }
 
   add_orders(table_id, orders) {
     this.#highlight_test(`Receive ${orders.length} order(s) from Table [${table_id}]`);
     this.#scheduler.enqueue(orders || []);
-    console.log(`Receive ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#scheduler.size);
+    Logger.info(`Receive ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#scheduler.size);
     this.#schedule_dispatch();
   }
 
@@ -49,21 +36,10 @@ class Assistant {
     this.#clear_timeout();
     this.#clear_dispatch_timeout();
 
-    this.#info_timeouts.forEach(timeoutId => clearTimeout(timeoutId));
-    this.#info_timeouts.clear();
-
-    this.#chef_subscriptions.forEach(({ chef, onChefDone }) => {
-      chef.unsubscribe(onChefDone);
-    });
-    this.#chef_subscriptions.clear();
-
-    if (this.#element) {
-      this.#element.tooltip('dispose');
-      this.#element.remove();
-    }
-
-    this.#element = null;
-    this.#observer_tables = [];
+    this.#clear_info_timeouts();
+    this.#unsubscribe_from_chefs();
+    this.#dispose_element();
+    this.clearObservers();
     if (this.#scheduler)
       this.#scheduler.clear();
   }
@@ -73,7 +49,7 @@ class Assistant {
 
   #add_info(chef_id, order, bg, action) {
     if (action === 'completed')
-      console.log(`Chef [${chef_id}] completed Order [${order.id}:${order.food.name}]`);
+      Logger.info(`Chef [${chef_id}] completed Order [${order.id}:${order.food.name}]`);
 
     if (!this.#element)
       return;
@@ -86,7 +62,7 @@ class Assistant {
     const timeoutId = setTimeout(() => {
       this.#info_timeouts.delete(timeoutId);
       info.slideUp(() => info.remove());
-    }, 8000);
+    }, APP_TIMEOUTS.ASSISTANT_INFO_MS);
     this.#info_timeouts.add(timeoutId);
   }
 
@@ -98,8 +74,41 @@ class Assistant {
     t.notify(order);
 
     t.#scheduler.remove(order);
-    console.log('Remain: ', t.#scheduler.snapshot());
+    Logger.debug('Remain: ', t.#scheduler.snapshot());
     t.#schedule_dispatch();
+  }
+
+  #subscribe_to_chefs(chefs) {
+    this.#chefs = chefs;
+    $.each(chefs, (indx, chef) => {
+      const onChefDone = (chef_id, order) => {
+        this.#chef_done(chef_id, order);
+      };
+
+      chef.subscribe(onChefDone);
+      this.#chef_subscriptions.set(chef.id, { chef, onChefDone });
+    });
+  }
+
+  #clear_info_timeouts() {
+    this.#info_timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.#info_timeouts.clear();
+  }
+
+  #unsubscribe_from_chefs() {
+    this.#chef_subscriptions.forEach(({ chef, onChefDone }) => {
+      chef.unsubscribe(onChefDone);
+    });
+    this.#chef_subscriptions.clear();
+  }
+
+  #dispose_element() {
+    if (!this.#element)
+      return;
+
+    this.#element.tooltip('dispose');
+    this.#element.remove();
+    this.#element = null;
   }
 
   #highlight_test(message, unhighlight = false) {
@@ -121,7 +130,7 @@ class Assistant {
         return;
 
       t.#element.removeClass('highlight').tooltip('hide');
-    }, 4000);
+    }, APP_TIMEOUTS.ASSISTANT_HIGHLIGHT_MS);
   }
 
   #clear_timeout() {
@@ -150,15 +159,15 @@ class Assistant {
 
   #schedule_dispatch() {
     if (!this.#has_pending_orders()) {
-      console.log('No orders.');
+      Logger.debug('No orders.');
       return;
     }
 
     if (!this.#has_free_chef() || this.#dispatch_timeout || this.#is_dispatching)
       return;
 
-    const time_wait = this.#timeout_to_send * 1000;
-    console.log(`Wait for ${time_wait} to send orders to chefs.`);
+    const time_wait = APP_TIMEOUTS.ASSISTANT_DISPATCH_MS;
+    Logger.debug(`Wait for ${time_wait} to send orders to chefs.`);
 
     this.#dispatch_timeout = setTimeout(() => {
       this.#dispatch_timeout = null;
@@ -192,13 +201,13 @@ class Assistant {
       return;
 
     if (chef.status === Chef.STATUS.IDLE) {
-      console.log(`Send Order [${order.id}] to Chef [${chef.id}]`);
+      Logger.info(`Send Order [${order.id}] to Chef [${chef.id}]`);
       t.#add_info(chef.id, order, 'warning bg-opacity-75', 'received');
       chef.process_order(order);
       return;
     }
 
-    console.log(`Chef [${chef.id}] is busy.`);
+    Logger.debug(`Chef [${chef.id}] is busy.`);
   }
 
   #render() {
@@ -209,29 +218,5 @@ class Assistant {
     assistant.tooltip({ customClass: 'assistant-tooltip', trigger: 'manual' });
     this.#element = assistant;
     assistant.appendTo(this.#holder);
-  }
-
-  // private methods
-
-
-  // add the ability to subscribe to a new object / DOM element
-  // essentially, add something to the observers array
-  subscribe(fn_to_call) {
-    this.#observer_tables.push(fn_to_call);
-  }
-
-  // add the ability to unsubscribe from a particular object
-  // essentially, remove something from the observers array
-  unsubscribe(fn_to_remote) {
-    this.#observer_tables = this.#observer_tables.filter(
-      subscriber => subscriber !== fn_to_remote
-    );
-    // console.log('this.#observer_tables', this.#observer_tables.length);
-  }
-
-  // update all subscribed objects / DOM elements
-  // and pass some data to each of them
-  notify(data) {
-    this.#observer_tables.forEach(observer => observer(data));
   }
 }

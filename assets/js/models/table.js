@@ -202,7 +202,7 @@ class Table {
     t.#element.addClass('highlight').tooltip('show');
     t.#clear_timeout();
 
-    t.#timeout_unhighlight = setTimeout(call_func, 4000);
+    t.#timeout_unhighlight = setTimeout(call_func, APP_TIMEOUTS.TABLE_HIGHLIGHT_MS);
   }
 
   #clear_timeout() {

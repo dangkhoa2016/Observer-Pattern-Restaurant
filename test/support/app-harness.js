@@ -6,6 +6,9 @@ const { JSDOM } = require('jsdom');
 const createJQuery = require('jquery');
 
 const SCRIPT_FILES = [
+  'assets/js/utilities/constants.js',
+  'assets/js/utilities/logger.js',
+  'assets/js/utilities/observable.js',
   'assets/js/utilities/helper.js',
   'assets/js/models/order.js',
   'assets/js/models/order-scheduler.js',
@@ -198,6 +201,7 @@ function loadApp() {
   installJQueryStubs($);
 
   const context = vm.createContext({
+    APP_LOG_LEVEL: 'silent',
     window,
     document: window.document,
     navigator: window.navigator,
@@ -229,7 +233,7 @@ function loadApp() {
   }
 
   vm.runInContext(
-    'globalThis.__app = { Assistant, Chef, Food, FoodList, Helper, Order, OrderScheduler, PanelAction, Progress, Restaurant, Table, Template };',
+    'globalThis.__app = { APP_LOG_LEVELS, APP_MESSAGES, APP_TIMEOUTS, Assistant, Chef, Food, FoodList, Helper, Logger, Observable, Order, OrderScheduler, PanelAction, Progress, Restaurant, Table, Template };',
     context
   );
 

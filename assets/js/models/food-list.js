@@ -1,14 +1,10 @@
-class FoodList {
+class FoodList extends Observable {
   #root = null;
   #current_table = null;
   #list = null;
 
-  // each instance of the Observer class
-  // starts with an empty array of things (observers)
-  // that react to a state change
-  #observer_assistants = [];
-
   constructor() {
+    super();
     let root = $('#modal-holder');
     if (root.length === 0) root = $('body');
     this.#root = root;
@@ -48,7 +44,7 @@ class FoodList {
 
       t.#bind_click();
     } catch (error) {
-      t.#show_load_error('Unable to load menu data.');
+      t.#show_load_error(APP_MESSAGES.MENU_LOAD_ERROR);
       throw new Error(`Unable to load menu data: ${error.message || error}`);
     }
   }
@@ -62,7 +58,7 @@ class FoodList {
 
     this.#list = null;
     this.#current_table = null;
-    this.#observer_assistants = [];
+    this.clearObservers();
   }
 
 
@@ -84,7 +80,7 @@ class FoodList {
           return;
         }
 
-        $('.modal-footer label', t.#list).text('Please select at least one food !');
+        $('.modal-footer label', t.#list).text(APP_MESSAGES.FOOD_SELECTION_REQUIRED);
       });
   }
 
@@ -113,26 +109,4 @@ class FoodList {
     );
   }
 
-  // private methods
-
-
-  // add the ability to subscribe to a new object / DOM element
-  // essentially, add something to the observers array
-  subscribe(fn_to_call) {
-    this.#observer_assistants.push(fn_to_call);
-  }
-
-  // add the ability to unsubscribe from a particular object
-  // essentially, remove something from the observers array
-  unsubscribe(fn_to_remote) {
-    this.#observer_assistants = this.#observer_assistants.filter(
-      subscriber => subscriber !== fn_to_remote
-    );
-  }
-
-  // update all subscribed objects / DOM elements
-  // and pass some data to each of them
-  notify(table_id, data) {
-    this.#observer_assistants.forEach(observer => observer(table_id, data));
-  }
 }

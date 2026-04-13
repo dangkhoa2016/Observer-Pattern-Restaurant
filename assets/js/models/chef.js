@@ -1,9 +1,6 @@
-class Chef {
+class Chef extends Observable {
   static #id_increase = 0;
-  static STATUS = Object.freeze({
-    IDLE: 1,
-    BUSY: 2
-  });
+  static STATUS = CHEF_STATUS;
   static template = null;
   static #slogans = ['Bring Out The Foodie In You.', 'Find Happiness In Cooking.',
     'Awaken Your Inner Chef.', 'Bring Out The Chef In You.'];
@@ -15,12 +12,8 @@ class Chef {
   #progress = [];
   #timeout_unhighlight = null;
 
-  // each instance of the Observer class
-  // starts with an empty array of things (observers)
-  // that react to a state change
-  #observer_assistants = [];
-
   constructor(name, holder) {
+    super();
     Chef.#id_increase += 1;
     this.id = Chef.#id_increase;
     this.status = Chef.STATUS.IDLE;
@@ -69,7 +62,7 @@ class Chef {
     this.#clear_timeout();
     this.#progress.slice().forEach(progress => progress.destroy());
     this.#progress = [];
-    this.#observer_assistants = [];
+    this.clearObservers();
 
     if (this.#element) {
       this.#element.remove();
@@ -120,7 +113,7 @@ class Chef {
       return;
 
     t.#element.addClass('highlight');
-    t.#timeout_unhighlight = setTimeout(call_func, 2000);
+    t.#timeout_unhighlight = setTimeout(call_func, APP_TIMEOUTS.CHEF_HIGHLIGHT_MS);
   }
 
   #clear_timeout() {
@@ -133,28 +126,5 @@ class Chef {
 
   static #random_slogan() {
     return this.#slogans[Math.floor(Math.random() * this.#slogans.length)]
-  }
-
-  // private methods
-
-
-  // add the ability to subscribe to a new object / DOM element
-  // essentially, add something to the observers array
-  subscribe(fn_to_call) {
-    this.#observer_assistants.push(fn_to_call);
-  }
-
-  // add the ability to unsubscribe from a particular object
-  //// essentially, remove something from the observers array
-  unsubscribe(fn_to_remote) {
-    this.#observer_assistants = this.#observer_assistants.filter(
-      subscriber => subscriber !== fn_to_remote
-    );
-  }
-
-  // update all subscribed objects / DOM elements
-  // and pass some data to each of them
-  notify(id, data) {
-    this.#observer_assistants.forEach(observer => observer(id, data));
   }
 }

@@ -131,7 +131,7 @@ class Progress {
         }
 
         t.#element.slideUp(() => { call_func(); });
-      }, 1000);
+      }, APP_TIMEOUTS.PROGRESS_COMPLETE_DELAY_MS);
       return;
     }
 

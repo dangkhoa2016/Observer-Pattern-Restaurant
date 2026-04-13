@@ -27,7 +27,7 @@ class Restaurant {
     const t = this;
     const fn_remove = function(table) {
       t.#panel_action.show_confirm(
-        'Are you sure to remove this table ?',
+        APP_MESSAGES.TABLE_REMOVE_CONFIRM,
         function() {
           t.#remove_table(table);
           table.destroy();
@@ -47,24 +47,8 @@ class Restaurant {
 
   async init() {
     try {
-      await (new this.#deps.Template()).init();
-
-      if (this.#options.table_holder)
-        this.#table_holder = $(this.#options.table_holder);
-      this.#chef_holder = this.#options.chef_holder;
-      this.#number_test_tables = this.#options.number_test_tables || 0;
-
-      this.#panel_action = new this.#deps.PanelAction(this);
-
-      this.#add_chefs();
-
-      this.#assistant = new this.#deps.Assistant(this.chefs, '#assistant');
-
-      await this.#init_food_list();
-
-      this.#add_tables();
-
-      console.log('App started at: ', new Date());
+      await this.#bootstrap();
+      Logger.info('App started at: ', new Date());
     } catch (error) {
       this.#render_init_error(error);
       throw error;
@@ -73,6 +57,24 @@ class Restaurant {
 
 
   // private methods
+
+  async #bootstrap() {
+    await (new this.#deps.Template()).init();
+    this.#configure_holders();
+    this.#panel_action = new this.#deps.PanelAction(this);
+    this.#add_chefs();
+    this.#assistant = new this.#deps.Assistant(this.chefs, '#assistant');
+    await this.#init_food_list();
+    this.#add_tables();
+  }
+
+  #configure_holders() {
+    if (this.#options.table_holder)
+      this.#table_holder = $(this.#options.table_holder);
+
+    this.#chef_holder = this.#options.chef_holder;
+    this.#number_test_tables = this.#options.number_test_tables || 0;
+  }
 
   #add_chefs() {
     this.#number_chefs = this.#options.number_chefs || 2;
@@ -117,6 +119,7 @@ class Restaurant {
         `<div class='alert alert-danger app-init-error' role='alert'>${message}</div>`
       )
     );
+    Logger.error('App init failed:', message);
   }
 
   // private methods

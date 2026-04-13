@@ -1,10 +1,6 @@
 class Order {
   static #id_increase = 0;
-  static STATUS = Object.freeze({
-    PENDING: 1,
-    PROCESSING: 2,
-    DONE: 3
-  });
+  static STATUS = ORDER_STATUS;
 
   #table_id = null;
 
