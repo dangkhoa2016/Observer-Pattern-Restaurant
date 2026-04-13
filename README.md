@@ -13,3 +13,9 @@ The tests cover three core flows:
 - order queue dispatch in Assistant
 - table subscribe/unsubscribe lifecycle
 - chef assignment when multiple orders are pending
+
+The suite now also covers:
+- confirmed table removal in Restaurant
+- pure order scheduling logic without DOM harness
+- progress completion and timer cleanup
+- startup failures for template loading and menu data loading

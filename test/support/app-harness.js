@@ -8,6 +8,7 @@ const createJQuery = require('jquery');
 const SCRIPT_FILES = [
   'assets/js/utilities/helper.js',
   'assets/js/models/order.js',
+  'assets/js/models/order-scheduler.js',
   'assets/js/models/progress.js',
   'assets/js/models/chef.js',
   'assets/js/models/assistant.js',
@@ -228,7 +229,7 @@ function loadApp() {
   }
 
   vm.runInContext(
-    'globalThis.__app = { Assistant, Chef, Food, FoodList, Helper, Order, PanelAction, Progress, Restaurant, Table, Template };',
+    'globalThis.__app = { Assistant, Chef, Food, FoodList, Helper, Order, OrderScheduler, PanelAction, Progress, Restaurant, Table, Template };',
     context
   );
 
@@ -239,7 +240,10 @@ function loadApp() {
     context,
     dom,
     timers,
-    $
+    $,
+    run(code) {
+      return vm.runInContext(code, context);
+    }
   };
 }
 

@@ -17,6 +17,9 @@ class FoodList {
   }
 
   show_menu_for(table) {
+    if (!this.#list || this.#list.length === 0)
+      return;
+
     this.#current_table = table;
 
     $.each(this.foods, function(indx, food) {
@@ -26,13 +29,15 @@ class FoodList {
     this.#list.modal('show', { backdrop: 'static' });
   }
 
-  render() {
+  async render() {
     const t = this;
     if (t.#list !== null && t.#list.length > 0)
       return;
 
     t.#list = $('#modal-foods');
-    $.get('/assets/data.json', function(data) {
+
+    try {
+      const data = await $.get('/assets/data.json');
       $.each(data, function(indx, obj) {
         const food = new Food(t.#list.find('#food-list'), obj);
         t.foods.push(food);
@@ -42,7 +47,10 @@ class FoodList {
       t.#root.append(t.#list);
 
       t.#bind_click();
-    });
+    } catch (error) {
+      t.#show_load_error('Unable to load menu data.');
+      throw new Error(`Unable to load menu data: ${error.message || error}`);
+    }
   }
 
   destroy() {
@@ -88,6 +96,21 @@ class FoodList {
         selected.push(new Order(t.#current_table.id, food));
     });
     return selected;
+  }
+
+  #show_load_error(message) {
+    if (!this.#list || this.#list.length === 0)
+      return;
+
+    const modalBody = this.#list.find('.modal-body');
+    if (modalBody.length === 0)
+      return;
+
+    modalBody.prepend(
+      $(
+        `<div class='alert alert-danger food-list-error' role='alert'>${message}</div>`
+      )
+    );
   }
 
   // private methods

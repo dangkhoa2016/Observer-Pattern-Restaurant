@@ -4,7 +4,7 @@ class Assistant {
   static template_info = null;
 
   #chefs = [];
-  #orders = [];
+  #scheduler = null;
   #timeout_to_send = 3;
   #holder = null;
   #element = null;
@@ -22,6 +22,7 @@ class Assistant {
   constructor(chefs, holder) {
     const t = this;
     t.#holder = holder;
+    t.#scheduler = new OrderScheduler(Order.STATUS);
     t.#render();
     if (!chefs)
       return;
@@ -39,8 +40,8 @@ class Assistant {
 
   add_orders(table_id, orders) {
     this.#highlight_test(`Receive ${orders.length} order(s) from Table [${table_id}]`);
-    this.#orders = [...this.#orders, ...(orders || [])];
-    console.log(`Receive ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#orders.length);
+    this.#scheduler.enqueue(orders || []);
+    console.log(`Receive ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#scheduler.size);
     this.#schedule_dispatch();
   }
 
@@ -63,6 +64,8 @@ class Assistant {
 
     this.#element = null;
     this.#observer_tables = [];
+    if (this.#scheduler)
+      this.#scheduler.clear();
   }
 
 
@@ -94,9 +97,8 @@ class Assistant {
     t.#highlight_test(`Receive completed food from Chef [${chef_id}]`);
     t.notify(order);
 
-    const indx = t.#orders.indexOf(order);
-    if (indx !== -1) t.#orders.splice(indx, 1);
-    console.log('Remain: ', t.#orders);
+    t.#scheduler.remove(order);
+    console.log('Remain: ', t.#scheduler.snapshot());
     t.#schedule_dispatch();
   }
 
@@ -139,11 +141,7 @@ class Assistant {
   }
 
   #has_pending_orders() {
-    return this.#orders.some(order => order.status === Order.STATUS.PENDING);
-  }
-
-  #get_next_pending_order() {
-    return this.#orders.find(order => order.status === Order.STATUS.PENDING) || null;
+    return this.#scheduler && this.#scheduler.hasPendingOrders();
   }
 
   #has_free_chef() {
@@ -175,17 +173,11 @@ class Assistant {
     this.#is_dispatching = true;
 
     try {
-      for (let i = 0; i < this.#chefs.length; i++) {
-        const chef = this.#chefs[i];
-        if (chef.status !== Chef.STATUS.IDLE)
-          continue;
-
-        const order = this.#get_next_pending_order();
-        if (!order)
-          break;
-
-        this.#send_to_chef(chef, order);
-      }
+      this.#scheduler.dispatchAvailable(
+        this.#chefs,
+        chef => chef.status === Chef.STATUS.IDLE,
+        (chef, order) => this.#send_to_chef(chef, order)
+      );
     } finally {
       this.#is_dispatching = false;
     }

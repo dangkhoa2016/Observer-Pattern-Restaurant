@@ -119,3 +119,197 @@ test('assistant assigns available chefs first and holds remaining orders until a
   assert.deepEqual(chefTwo.assignments, [orderTwo.id, orderThree.id]);
   assert.equal(orderThree.status, app.Order.STATUS.PROCESSING);
 });
+
+test('restaurant removes the confirmed table and destroys only that table instance', async () => {
+  const { app } = loadApp();
+
+  class StubTemplate {
+    async init() {}
+  }
+
+  class StubPanelAction {
+    static lastInstance = null;
+
+    constructor() {
+      this.lastConfirm = null;
+      StubPanelAction.lastInstance = this;
+    }
+
+    show_confirm(message, callback) {
+      this.lastConfirm = { message, callback };
+    }
+  }
+
+  class StubAssistant {
+    add_orders() {}
+    subscribe() {}
+    unsubscribe() {}
+  }
+
+  class StubFoodList {
+    subscribe() {}
+    render() {}
+  }
+
+  class StubChef {
+    constructor(id) {
+      this.id = id;
+    }
+  }
+
+  class StubTable {
+    static nextId = 1;
+
+    constructor(options) {
+      this.id = StubTable.nextId;
+      StubTable.nextId += 1;
+      this.options = options;
+      this.destroyed = 0;
+    }
+
+    destroy() {
+      this.destroyed += 1;
+    }
+  }
+
+  const restaurant = new app.Restaurant({
+    AssistantClass: StubAssistant,
+    ChefClass: StubChef,
+    FoodListClass: StubFoodList,
+    PanelActionClass: StubPanelAction,
+    TableClass: StubTable,
+    TemplateClass: StubTemplate,
+    chef_holder: '#chef-holder',
+    number_chefs: 0,
+    number_test_tables: 0,
+    table_holder: '#table-holder'
+  });
+
+  await restaurant.init();
+  restaurant.add_table();
+  restaurant.add_table();
+
+  assert.equal(restaurant.tables.length, 2);
+
+  const [firstTable, secondTable] = restaurant.tables;
+  firstTable.options.fn_remove(firstTable);
+
+  assert.equal(
+    StubPanelAction.lastInstance.lastConfirm.message,
+    'Are you sure to remove this table ?'
+  );
+
+  StubPanelAction.lastInstance.lastConfirm.callback();
+
+  assert.equal(firstTable.destroyed, 1);
+  assert.equal(secondTable.destroyed, 0);
+  assert.equal(restaurant.tables.length, 1);
+  assert.equal(restaurant.tables[0], secondTable);
+});
+
+test('restaurant init surfaces template loading errors and stops startup early', async () => {
+  const { app, $ } = loadApp();
+  const lifecycle = [];
+
+  class FailingTemplate {
+    async init() {
+      throw new Error('Template bundle is unavailable');
+    }
+  }
+
+  class StubPanelAction {
+    constructor() {
+      lifecycle.push('panel');
+    }
+  }
+
+  class StubAssistant {
+    constructor() {
+      lifecycle.push('assistant');
+    }
+  }
+
+  const restaurant = new app.Restaurant({
+    AssistantClass: StubAssistant,
+    PanelActionClass: StubPanelAction,
+    TemplateClass: FailingTemplate,
+    chef_holder: '#chef-holder',
+    number_chefs: 0,
+    number_test_tables: 0,
+    table_holder: '#table-holder'
+  });
+
+  await assert.rejects(() => restaurant.init(), /Template bundle is unavailable/);
+
+  assert.deepEqual(lifecycle, []);
+  assert.equal($('.app-init-error').length, 1);
+  assert.match($('.app-init-error').text(), /Template bundle is unavailable/);
+  assert.equal(restaurant.tables.length, 0);
+});
+
+test('restaurant init surfaces menu loading errors after base dependencies start', async () => {
+  const { app, $ } = loadApp();
+  const lifecycle = [];
+
+  class StubTemplate {
+    async init() {
+      lifecycle.push('template');
+    }
+  }
+
+  class StubPanelAction {
+    constructor() {
+      lifecycle.push('panel');
+    }
+  }
+
+  class StubAssistant {
+    constructor() {
+      lifecycle.push('assistant');
+    }
+
+    add_orders() {}
+    subscribe() {}
+    unsubscribe() {}
+  }
+
+  class StubFoodList {
+    constructor() {
+      lifecycle.push('food-list');
+    }
+
+    subscribe() {
+      lifecycle.push('subscribe');
+    }
+
+    async render() {
+      lifecycle.push('render');
+      throw new Error('Menu data is unavailable');
+    }
+  }
+
+  class StubChef {
+    constructor() {
+      lifecycle.push('chef');
+    }
+  }
+
+  const restaurant = new app.Restaurant({
+    AssistantClass: StubAssistant,
+    ChefClass: StubChef,
+    FoodListClass: StubFoodList,
+    PanelActionClass: StubPanelAction,
+    TemplateClass: StubTemplate,
+    chef_holder: '#chef-holder',
+    number_chefs: 1,
+    number_test_tables: 2,
+    table_holder: '#table-holder'
+  });
+
+  await assert.rejects(() => restaurant.init(), /Menu data is unavailable/);
+
+  assert.deepEqual(lifecycle, ['template', 'panel', 'chef', 'assistant', 'food-list', 'subscribe', 'render']);
+  assert.equal($('.app-init-error').length, 1);
+  assert.match($('.app-init-error').text(), /Menu data is unavailable/);
+  assert.equal(restaurant.tables.length, 0);
+});

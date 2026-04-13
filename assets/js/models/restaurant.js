@@ -6,9 +6,18 @@ class Restaurant {
   #panel_action = null;
   #options = {};
   #number_chefs = 0;
+  #deps = {};
 
   constructor(options = {}) {
     this.#options = options;
+    this.#deps = {
+      Assistant: options.AssistantClass || Assistant,
+      Chef: options.ChefClass || Chef,
+      FoodList: options.FoodListClass || FoodList,
+      PanelAction: options.PanelActionClass || PanelAction,
+      Table: options.TableClass || Table,
+      Template: options.TemplateClass || Template
+    };
     this.chefs = [];
     this.food_list = null;
     this.tables = [];
@@ -26,7 +35,7 @@ class Restaurant {
       );
     };
 
-    const tb = new Table({
+    const tb = new this.#deps.Table({
       holder: t.#table_holder,
       food_list: this.food_list,
       assistant: t.#assistant,
@@ -37,25 +46,29 @@ class Restaurant {
   }
 
   async init() {
+    try {
+      await (new this.#deps.Template()).init();
 
-    await (new Template()).init();
+      if (this.#options.table_holder)
+        this.#table_holder = $(this.#options.table_holder);
+      this.#chef_holder = this.#options.chef_holder;
+      this.#number_test_tables = this.#options.number_test_tables || 0;
 
-    if (this.#options.table_holder)
-      this.#table_holder = $(this.#options.table_holder);
-    this.#chef_holder = this.#options.chef_holder;
-    this.#number_test_tables = this.#options.number_test_tables || 0;
+      this.#panel_action = new this.#deps.PanelAction(this);
 
-    this.#panel_action = new PanelAction(this);
+      this.#add_chefs();
 
-    this.#add_chefs();
+      this.#assistant = new this.#deps.Assistant(this.chefs, '#assistant');
 
-    this.#assistant = new Assistant(this.chefs, '#assistant');
+      await this.#init_food_list();
 
-    this.#init_food_list();
+      this.#add_tables();
 
-    this.#add_tables();
-
-    console.log('App started at: ', new Date());
+      console.log('App started at: ', new Date());
+    } catch (error) {
+      this.#render_init_error(error);
+      throw error;
+    }
   }
 
 
@@ -64,7 +77,7 @@ class Restaurant {
   #add_chefs() {
     this.#number_chefs = this.#options.number_chefs || 2;
     for (let i = 0; i < this.#number_chefs; i++)
-      this.chefs.push(new Chef(i + 1, this.#chef_holder));
+      this.chefs.push(new this.#deps.Chef(i + 1, this.#chef_holder));
   }
 
   #add_tables() {
@@ -85,13 +98,25 @@ class Restaurant {
     this.tables.splice(indx, 1);
   }
 
-  #init_food_list() {
+  async #init_food_list() {
     const t = this;
-    t.food_list = new FoodList();
+    t.food_list = new this.#deps.FoodList();
     t.food_list.subscribe(function(table_id, data) {
       t.#assistant.add_orders(table_id, data);
     });
-    t.food_list.render();
+    await t.food_list.render();
+  }
+
+  #render_init_error(error) {
+    const root = $('#modal-holder').length > 0 ? $('#modal-holder') : $('body');
+    const message = error instanceof Error ? error.message : String(error);
+
+    root.find('.app-init-error').remove();
+    root.prepend(
+      $(
+        `<div class='alert alert-danger app-init-error' role='alert'>${message}</div>`
+      )
+    );
   }
 
   // private methods
