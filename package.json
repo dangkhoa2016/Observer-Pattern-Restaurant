@@ -1,0 +1,12 @@
+{
+  "name": "observer-pattern-restaurant",
+  "version": "1.0.0",
+  "private": false,
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  },
+  "devDependencies": {
+    "jquery": "^3.7.1",
+    "jsdom": "^24.1.3"
+  }
+}
