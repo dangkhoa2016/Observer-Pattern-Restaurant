@@ -71,14 +71,7 @@ class Assistant extends Observable {
     t.#add_info(chef_id, order, 'info bg-opacity-75', 'completed');
 
     t.#highlight_test(`Receive completed food from Chef [${chef_id}]`);
-    t.notify({
-      type: APP_EVENTS.ASSISTANT_ORDER_COMPLETED,
-      payload: {
-        chefId: chef_id,
-        order,
-        tableId: order.table_id
-      }
-    });
+    t.notify(AppEventFactory.assistantOrderCompleted(chef_id, order));
 
     t.#scheduler.remove(order);
     Logger.debug('Remain: ', t.#scheduler.snapshot());
