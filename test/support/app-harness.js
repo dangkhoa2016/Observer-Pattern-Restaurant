@@ -14,9 +14,11 @@ const SCRIPT_FILES = [
   'assets/js/models/food-list-state.js',
   'assets/js/models/table-state.js',
   'assets/js/models/chef-state.js',
+  'assets/js/models/progress-state.js',
   'assets/js/views/food-list-view.js',
   'assets/js/views/table-view.js',
   'assets/js/views/chef-view.js',
+  'assets/js/views/progress-view.js',
   'assets/js/models/order.js',
   'assets/js/models/order-scheduler.js',
   'assets/js/models/progress.js',
@@ -248,7 +250,7 @@ function loadApp() {
   }
 
   vm.runInContext(
-    'globalThis.__app = { APP_EVENTS, APP_LOG_LEVELS, APP_MESSAGES, APP_TIMEOUTS, AppEventFactory, Assistant, Chef, ChefState, ChefView, Food, FoodList, FoodListState, FoodListView, Helper, Logger, Observable, Order, OrderScheduler, PanelAction, Progress, Restaurant, Table, TableState, TableView, Template };',
+    'globalThis.__app = { APP_EVENTS, APP_LOG_LEVELS, APP_MESSAGES, APP_TIMEOUTS, AppEventFactory, Assistant, Chef, ChefState, ChefView, Food, FoodList, FoodListState, FoodListView, Helper, Logger, Observable, Order, OrderScheduler, PanelAction, Progress, ProgressState, ProgressView, Restaurant, Table, TableState, TableView, Template };',
     context
   );
 

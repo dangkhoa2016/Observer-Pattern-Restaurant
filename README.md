@@ -29,3 +29,5 @@ The suite now also covers:
 - `assets/js/models/table-state.js` and `assets/js/models/chef-state.js` now own domain state for table orders/subscription and chef order/status transitions, while `Table` and `Chef` focus on UI binding and rendering.
 - `assets/js/models/food-list-state.js` now owns menu selection state, and cross-model communication now uses structured events defined in `assets/js/utilities/constants.js` via `APP_EVENTS`.
 - DOM-specific rendering/binding now lives in `assets/js/views/food-list-view.js`, `assets/js/views/table-view.js`, and `assets/js/views/chef-view.js`, which keeps the corresponding models focused on state and flow control.
+- `assets/js/models/progress-state.js` and `assets/js/views/progress-view.js` now split timer/progress state from DOM rendering for progress bars.
+- The test suite includes a full event-flow integration check from food selection through restaurant wiring, assistant dispatch, and table completion handling.
