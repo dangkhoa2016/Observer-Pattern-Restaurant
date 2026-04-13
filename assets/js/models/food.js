@@ -11,7 +11,7 @@ class Food {
   color = null;
   #bg_color = '';
   #hover_color = '';
-  #not_select_text = 'Not select';
+  #not_select_text = 'Not selected';
   #selected_text = 'Selected';
   #on_toggle = null;
 

@@ -26,9 +26,9 @@ class Assistant extends Observable {
   }
 
   add_orders(table_id, orders) {
-    this.#highlight_test(`Receive ${orders.length} order(s) from Table [${table_id}]`);
+    this.#highlight_test(`Received ${orders.length} order(s) from Table [${table_id}]`);
     this.#scheduler.enqueue(orders || []);
-    Logger.info(`Receive ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#scheduler.size);
+    Logger.info(`Received ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#scheduler.size);
     this.#schedule_dispatch();
   }
 
@@ -55,7 +55,14 @@ class Assistant extends Observable {
       return;
 
     const info = $(
-      Assistant.template_info({ chef_id, order, bg, action, date: new Date() })
+      Assistant.template_info({
+        chef_id,
+        order,
+        bg,
+        action,
+        message: this.#get_info_message(action),
+        date: new Date()
+      })
     );
 
     this.#element.find('.card-footer').append(info);
@@ -70,7 +77,7 @@ class Assistant extends Observable {
     const t = this;
     t.#add_info(chef_id, order, 'info bg-opacity-75', 'completed');
 
-    t.#highlight_test(`Receive completed food from Chef [${chef_id}]`);
+    t.#highlight_test(`Received a completed dish from Chef [${chef_id}]`);
     t.notify(AppEventFactory.assistantOrderCompleted(chef_id, order));
 
     t.#scheduler.remove(order);
@@ -93,6 +100,16 @@ class Assistant extends Observable {
   #clear_info_timeouts() {
     this.#info_timeouts.forEach(timeoutId => clearTimeout(timeoutId));
     this.#info_timeouts.clear();
+  }
+
+  #get_info_message(action) {
+    if (action === 'received')
+      return 'picked up';
+
+    if (action === 'completed')
+      return 'completed';
+
+    return action;
   }
 
   #unsubscribe_from_chefs() {

@@ -204,7 +204,7 @@ test('restaurant removes the confirmed table and destroys only that table instan
 
   assert.equal(
     StubPanelAction.lastInstance.lastConfirm.message,
-    'Are you sure to remove this table ?'
+    'Are you sure you want to remove this table?'
   );
 
   StubPanelAction.lastInstance.lastConfirm.callback();

@@ -2,8 +2,8 @@ class Chef extends Observable {
   static #id_increase = 0;
   static STATUS = CHEF_STATUS;
   static template = null;
-  static #slogans = ['Bring Out The Foodie In You.', 'Find Happiness In Cooking.',
-    'Awaken Your Inner Chef.', 'Bring Out The Chef In You.'];
+  static #slogans = ['Bring out the foodie in you.', 'Find joy in cooking.',
+    'Awaken your inner chef.', 'Let your inner chef shine.'];
 
   #slogan = '';
   #state = null;
@@ -33,7 +33,7 @@ class Chef extends Observable {
     const time_to_complete = Math.floor(Math.random() * 30) + 1;
     t.#progress.push(
       new Progress({
-        html: `Processing <strong>${order.food.name}</strong>`,
+        html: `Preparing <strong>${order.food.name}</strong>`,
         holder: t.#view.getCookProgressHolder(),
         time_to_complete,
         call_back_complete: function(progress) {

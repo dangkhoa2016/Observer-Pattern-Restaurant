@@ -1,5 +1,5 @@
 # About
-This is sample Observer Pattern about Restaurant using jQuery and Javascript Classes.
+This is a sample restaurant workflow demo built with the Observer Pattern, jQuery, and JavaScript classes.
 
 # Test
 Install dependencies and run the minimal regression suite:
@@ -10,15 +10,15 @@ npm test
 ```
 
 The tests cover three core flows:
-- order queue dispatch in Assistant
-- table subscribe/unsubscribe lifecycle
+- assistant order queue dispatch
+- table subscription lifecycle
 - chef assignment when multiple orders are pending
 
 The suite now also covers:
-- confirmed table removal in Restaurant
-- pure order scheduling logic without DOM harness
+- confirmed table removal in the Restaurant model
+- pure order scheduling logic without the DOM harness
 - progress completion and timer cleanup
-- startup failures for template loading and menu data loading
+- startup failures for template loading and menu loading
 
 # Architecture Notes
 - Shared observer behavior now lives in `assets/js/utilities/observable.js` and is reused by Assistant, Chef, and FoodList.

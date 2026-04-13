@@ -147,7 +147,7 @@ function installTemplates(app) {
       `<h6 class='card-title'>${slogan}</h6>`,
       "<div class='food-list'></div>",
       "<div class='action mt-2'>",
-      "<a href='#' class='btn btn-sm btn-add-foods float-start btn-primary'>Add foods</a>",
+      "<a href='#' class='btn btn-sm btn-add-foods float-start btn-primary'>Add Dishes</a>",
       "<div class='float-end'>",
       "<a href='#' data-bs-toggle='tooltip' class='btn btn-sm btn-remove btn-dark'></a>",
       "<a href='#' data-bs-toggle='tooltip' class='btn btn-sm btn-subscribe d-none btn-success'></a>",
@@ -176,7 +176,7 @@ function installTemplates(app) {
       "<div class='card w-25 chef float-start'>",
       `<h5 class='card-title p-2'>Chef: ${name}</h5>`,
       "<div class='card-body px-2 py-0'><div class='cook-progress'></div></div>",
-      `<div class='card-footer bg-info text-white'>Slogan: \"${slogan}\"</div>`,
+      `<div class='card-footer bg-info text-white'>Motto: \"${slogan}\"</div>`,
       '</div>'
     ].join('');
   };

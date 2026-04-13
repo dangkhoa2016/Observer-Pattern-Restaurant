@@ -28,9 +28,9 @@ const APP_TIMEOUTS = Object.freeze({
 });
 
 const APP_MESSAGES = Object.freeze({
-  FOOD_SELECTION_REQUIRED: 'Please select at least one food !',
-  MENU_LOAD_ERROR: 'Unable to load menu data.',
-  TABLE_REMOVE_CONFIRM: 'Are you sure to remove this table ?'
+  FOOD_SELECTION_REQUIRED: 'Please select at least one dish.',
+  MENU_LOAD_ERROR: 'Unable to load the menu.',
+  TABLE_REMOVE_CONFIRM: 'Are you sure you want to remove this table?'
 });
 
 const APP_EVENTS = Object.freeze({

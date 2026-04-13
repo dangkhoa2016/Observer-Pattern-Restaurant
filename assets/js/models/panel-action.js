@@ -2,7 +2,7 @@ class PanelAction {
   #panel_action = $('#panel-action');
   #restaurant = null;
   #confirm = null;
-  #confirm_text = 'Are you sure ?';
+  #confirm_text = 'Are you sure?';
   #call_back = null;
   #root = null;
 

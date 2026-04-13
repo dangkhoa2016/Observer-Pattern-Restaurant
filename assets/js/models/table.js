@@ -2,8 +2,8 @@ class Table {
   static template = null;
   static template_foods = null;
   static #id_increase = 0;
-  static #slogans = ['For the President...', 'The best of the best...',
-    'Only very important person...', 'Greatest person...'];
+  static #slogans = ['Reserved for the president...', 'Reserved for our finest guests...',
+    'Reserved for a very important guest...', 'Reserved for a distinguished guest...'];
 
   #food_list = null;
   #state = null;
@@ -60,7 +60,7 @@ class Table {
     t.#progress.push(
       new Progress({
         icon: 'fas fa-check-double',
-        html: `Eating...`,
+        html: `Enjoying the dish...`,
         holder: t.#view.getEatProgressHolder(order.id),
         time_to_complete,
         reference: order,

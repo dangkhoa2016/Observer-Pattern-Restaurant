@@ -15,7 +15,7 @@ class TableView {
       const margin_left = 20;
       table.css('left', ((count - 1) * margin_left) + 'px');
       table.appendTo(this.#holder);
-      table.attr('data-bs-original-title', 'Receive info from Assistant').tooltip({ trigger: 'manual' });
+      table.attr('data-bs-original-title', 'Receive updates from the assistant').tooltip({ trigger: 'manual' });
     }
 
     this.#element = table;

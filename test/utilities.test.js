@@ -53,5 +53,5 @@ test('shared constants stay standardized across status and timeout domains', () 
   assert.equal(ORDER_STATUS.DONE, 3);
   assert.equal(CHEF_STATUS.IDLE, 1);
   assert.equal(APP_TIMEOUTS.ASSISTANT_DISPATCH_MS, 3000);
-  assert.equal(APP_MESSAGES.TABLE_REMOVE_CONFIRM, 'Are you sure to remove this table ?');
+  assert.equal(APP_MESSAGES.TABLE_REMOVE_CONFIRM, 'Are you sure you want to remove this table?');
 });
