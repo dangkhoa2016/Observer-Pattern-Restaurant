@@ -1,13 +1,14 @@
 class FoodList extends Observable {
   #root = null;
-  #current_table = null;
   #list = null;
+  #state = null;
 
   constructor() {
     super();
     let root = $('#modal-holder');
     if (root.length === 0) root = $('body');
     this.#root = root;
+    this.#state = new FoodListState();
 
     this.foods = [];
   }
@@ -16,11 +17,8 @@ class FoodList extends Observable {
     if (!this.#list || this.#list.length === 0)
       return;
 
-    this.#current_table = table;
-
-    $.each(this.foods, function(indx, food) {
-      food.set_state(false);
-    });
+    this.#state.setCurrentTable(table);
+    this.#sync_food_selection();
 
     this.#list.modal('show', { backdrop: 'static' });
   }
@@ -36,9 +34,14 @@ class FoodList extends Observable {
       const data = await $.get('/assets/data.json');
       $.each(data, function(indx, obj) {
         const food = new Food(t.#list.find('#food-list'), obj);
+        food.set_toggle_handler(function(currentFood, isSelected) {
+          t.#state.toggleFood(currentFood.id, isSelected);
+        });
         t.foods.push(food);
         food.render();
       });
+
+      t.#state.setFoods(t.foods);
 
       t.#root.append(t.#list);
 
@@ -57,7 +60,7 @@ class FoodList extends Observable {
     }
 
     this.#list = null;
-    this.#current_table = null;
+    this.#state.clear();
     this.clearObservers();
   }
 
@@ -71,10 +74,9 @@ class FoodList extends Observable {
       .on('click.food-list', function(e) {
         e.preventDefault();
 
-        const orders = t.#get_orders();
-        if (orders.length > 0) {
-          t.#current_table.add_orders(orders);
-          t.notify(t.#current_table.id, orders);
+        const submission = t.#build_order_submission();
+        if (submission) {
+          t.notify(submission);
           $('.modal-footer label', t.#list).text('');
           t.#list.modal('hide');
           return;
@@ -84,14 +86,27 @@ class FoodList extends Observable {
       });
   }
 
-  #get_orders() {
-    const selected = [];
-    const t = this;
-    $.each(this.foods, function(indx, food) {
-      if (food.is_selected())
-        selected.push(new Order(t.#current_table.id, food));
+  #build_order_submission() {
+    const tableId = this.#state.getCurrentTableId();
+    const foods = this.#state.getSelectedFoods();
+    if (!tableId || foods.length === 0)
+      return null;
+
+    const orders = foods.map(food => new Order(tableId, food));
+
+    return {
+      type: APP_EVENTS.FOOD_LIST_ORDERS_SUBMITTED,
+      payload: {
+        tableId,
+        orders
+      }
+    };
+  }
+
+  #sync_food_selection() {
+    $.each(this.foods, (indx, food) => {
+      food.set_state(this.#state.isSelected(food.id));
     });
-    return selected;
   }
 
   #show_load_error(message) {

@@ -10,6 +10,9 @@ const SCRIPT_FILES = [
   'assets/js/utilities/logger.js',
   'assets/js/utilities/observable.js',
   'assets/js/utilities/helper.js',
+  'assets/js/models/food-list-state.js',
+  'assets/js/models/table-state.js',
+  'assets/js/models/chef-state.js',
   'assets/js/models/order.js',
   'assets/js/models/order-scheduler.js',
   'assets/js/models/progress.js',
@@ -78,7 +81,15 @@ function createBaseHtml() {
     '<html>',
     '<head></head>',
     '<body>',
-    "<div id='modal-holder'></div>",
+    "<div id='modal-holder'>",
+    "<div class='modal fade' id='modal-foods'>",
+    "<div class='modal-dialog'><div class='modal-content'>",
+    "<div class='modal-body'><div class='list-group' id='food-list'></div></div>",
+    "<div class='modal-footer justify-content-between'><label></label><div><button type='button' class='btn btn-order btn-primary'>Order</button></div></div>",
+    '</div></div>',
+    '</div>',
+    "<div class='modal fade' id='modal-confirm'><button type='button' class='btn btn-sure btn-danger'>Yes</button></div>",
+    '</div>',
     "<div id='assistant'></div>",
     "<div id='table-holder'></div>",
     "<div id='chef-holder'></div>",
@@ -233,7 +244,7 @@ function loadApp() {
   }
 
   vm.runInContext(
-    'globalThis.__app = { APP_LOG_LEVELS, APP_MESSAGES, APP_TIMEOUTS, Assistant, Chef, Food, FoodList, Helper, Logger, Observable, Order, OrderScheduler, PanelAction, Progress, Restaurant, Table, Template };',
+    'globalThis.__app = { APP_EVENTS, APP_LOG_LEVELS, APP_MESSAGES, APP_TIMEOUTS, Assistant, Chef, ChefState, Food, FoodList, FoodListState, Helper, Logger, Observable, Order, OrderScheduler, PanelAction, Progress, Restaurant, Table, TableState, Template };',
     context
   );
 

@@ -13,6 +13,7 @@ class Food {
   #hover_color = '';
   #not_select_text = 'Not select';
   #selected_text = 'Selected';
+  #on_toggle = null;
 
   constructor(parent, data) {
     this.name = data['name'] ? data['name'] : data;
@@ -29,6 +30,10 @@ class Food {
 
   is_selected() {
     return this.#button.hasClass('focus');
+  }
+
+  set_toggle_handler(handler) {
+    this.#on_toggle = typeof handler === 'function' ? handler : null;
   }
 
   set_state(is_selected = false) {
@@ -97,7 +102,9 @@ class Food {
 
     btn.click(function(e) {
       e.preventDefault();
-      t.set_state(!btn.hasClass('focus'));
+      const nextState = !btn.hasClass('focus');
+      t.set_state(nextState);
+      if (t.#on_toggle) t.#on_toggle(t, nextState);
     });
   }
 

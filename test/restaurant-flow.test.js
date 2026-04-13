@@ -41,25 +41,33 @@ test('table subscription lifecycle follows subscribe, unsubscribe, resubscribe, 
 
   const ownOrder = new app.Order(table.id, createFood('Steak'));
   const otherOrder = new app.Order(table.id + 1, createFood('Soup'));
+  const ownEvent = {
+    type: app.APP_EVENTS.ASSISTANT_ORDER_COMPLETED,
+    payload: { chefId: 1, order: ownOrder, tableId: table.id }
+  };
+  const otherEvent = {
+    type: app.APP_EVENTS.ASSISTANT_ORDER_COMPLETED,
+    payload: { chefId: 1, order: otherOrder, tableId: table.id + 1 }
+  };
 
   assert.equal(assistant.listenerCount(), 1);
-  assistant.notify(ownOrder);
-  assistant.notify(otherOrder);
+  assistant.notify(ownEvent);
+  assistant.notify(otherEvent);
   assert.deepEqual(received, [ownOrder.id]);
 
   assert.equal(table.unsubscribe_from_assistant(), true);
   assert.equal(assistant.listenerCount(), 0);
-  assistant.notify(ownOrder);
+  assistant.notify(ownEvent);
   assert.deepEqual(received, [ownOrder.id]);
 
   assert.equal(table.subscribe_to_assistant(), true);
   assert.equal(assistant.listenerCount(), 1);
-  assistant.notify(ownOrder);
+  assistant.notify(ownEvent);
   assert.deepEqual(received, [ownOrder.id, ownOrder.id]);
 
   table.destroy();
   assert.equal(assistant.listenerCount(), 0);
-  assistant.notify(ownOrder);
+  assistant.notify(ownEvent);
   assert.deepEqual(received, [ownOrder.id, ownOrder.id]);
 });
 

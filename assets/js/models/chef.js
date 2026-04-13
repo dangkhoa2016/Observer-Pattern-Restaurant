@@ -8,7 +8,7 @@ class Chef extends Observable {
   #holder = null;
   #element = null;
   #slogan = '';
-  #current_order = null;
+  #state = null;
   #progress = [];
   #timeout_unhighlight = null;
 
@@ -16,7 +16,7 @@ class Chef extends Observable {
     super();
     Chef.#id_increase += 1;
     this.id = Chef.#id_increase;
-    this.status = Chef.STATUS.IDLE;
+    this.#state = new ChefState();
     this.#slogan = Chef.#random_slogan();
     if (holder) this.#holder = $(holder);
 
@@ -29,16 +29,16 @@ class Chef extends Observable {
     chef.appendTo(this.#holder);
   }
 
+  get status() {
+    return this.#state.status;
+  }
+
   process_order(order) {
     const t = this;
-    if (t.status === Chef.STATUS.BUSY || (t.#current_order && t.#current_order.status !== Order.STATUS.DONE))
+    if (!t.#state.startOrder(order))
       return false;
 
-    //this.#highlight_test(true);
-
-    this.#update_status(Chef.STATUS.BUSY);
-    order.status = Order.STATUS.PROCESSING;
-    t.#current_order = order;
+    t.#sync_processing_ui();
 
     const time_to_complete = Math.floor(Math.random() * 30) + 1;
     t.#progress.push(
@@ -63,38 +63,37 @@ class Chef extends Observable {
     this.#progress.slice().forEach(progress => progress.destroy());
     this.#progress = [];
     this.clearObservers();
+    this.#state.clear();
 
     if (this.#element) {
       this.#element.remove();
       this.#element = null;
     }
-
-    this.#current_order = null;
   }
 
 
   // private methods
 
   #complete_order() {
-    if (!this.#current_order)
+    const completedOrder = this.#state.completeCurrentOrder();
+    if (!completedOrder)
       return;
 
-    const completedOrder = this.#current_order;
-    completedOrder.status = Order.STATUS.DONE;
-    this.#current_order = null;
-    this.#update_status(Chef.STATUS.IDLE);
+    this.#sync_processing_ui();
     this.#highlight_test();
     this.notify(this.id, completedOrder);
   }
 
-  #update_status(status) {
-    this.status = status;
-    this.#set_bg_process(status === Chef.STATUS.IDLE);
-  }
+  #sync_processing_ui() {
+    if (!this.#element)
+      return;
 
-  #set_bg_process(complete) {
-    if (complete) this.#element.removeClass('processing');
-    else this.#element.addClass('processing');
+    if (this.status === Chef.STATUS.IDLE) {
+      this.#element.removeClass('processing');
+      return;
+    }
+
+    this.#element.addClass('processing');
   }
 
   #highlight_test(unhighlight = false) {

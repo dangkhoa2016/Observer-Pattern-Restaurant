@@ -103,8 +103,16 @@ class Restaurant {
   async #init_food_list() {
     const t = this;
     t.food_list = new this.#deps.FoodList();
-    t.food_list.subscribe(function(table_id, data) {
-      t.#assistant.add_orders(table_id, data);
+    t.food_list.subscribe(function(event) {
+      if (!event || event.type !== APP_EVENTS.FOOD_LIST_ORDERS_SUBMITTED)
+        return;
+
+      const { tableId, orders } = event.payload;
+      t.#assistant.add_orders(tableId, orders);
+
+      const table = t.tables.find(currentTable => currentTable.id === tableId);
+      if (table)
+        table.add_orders(orders);
     });
     await t.food_list.render();
   }

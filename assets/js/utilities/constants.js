@@ -33,8 +33,14 @@ const APP_MESSAGES = Object.freeze({
   TABLE_REMOVE_CONFIRM: 'Are you sure to remove this table ?'
 });
 
+const APP_EVENTS = Object.freeze({
+  FOOD_LIST_ORDERS_SUBMITTED: 'food-list.orders-submitted',
+  ASSISTANT_ORDER_COMPLETED: 'assistant.order-completed'
+});
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
+    APP_EVENTS,
     APP_LOG_LEVELS,
     APP_MESSAGES,
     APP_TIMEOUTS,

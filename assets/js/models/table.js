@@ -8,24 +8,25 @@ class Table {
   #element = null;
   #holder = null;
   #food_list = null;
-  #orders = [];
+  #state = null;
   #timeout_unhighlight = null;
   #progress = [];
   #fn_remove = null;
-  #slogan = '';
   #assistant = null;
   #assistant_subscription = null;
-  #is_subscribed = false;
 
   constructor(options = {}) {
     this.#holder = options.holder;
     Table.#id_increase += 1;
-    this.id = Table.#id_increase;
+    this.#state = new TableState({
+      id: Table.#id_increase,
+      slogan: Table.#random_slogan()
+    });
+    this.id = this.#state.id;
 
     this.#food_list = options.food_list;
     this.#fn_remove = options.fn_remove;
     this.#assistant = options.assistant || null;
-    this.#slogan = Table.#random_slogan();
     this.#assistant_subscription = this.#create_assistant_subscription();
 
     this.#render();
@@ -38,6 +39,7 @@ class Table {
     this.#clear_timeout();
     this.#progress.slice().forEach(progress => progress.destroy());
     this.#progress = [];
+    this.#state.clear();
 
     if (this.#element) {
       this.#element.find('.btn-add-foods, .btn-remove, .btn-unsubscribe, .btn-subscribe').off('click.table');
@@ -50,7 +52,7 @@ class Table {
   }
 
   add_orders(orders) {
-    this.#orders = [...this.#orders, ...(orders || [])];
+    this.#state.addOrders(orders || []);
     this.#render_foods(orders);
   }
 
@@ -59,8 +61,7 @@ class Table {
 
     t.#highlight_test();
 
-    const indx = t.#get_order_index(order);
-    if (indx === -1)
+    if (!t.#state.hasOrder(order))
       return;
 
     const time_to_complete = Math.floor(Math.random() * 30) + 1;
@@ -89,7 +90,7 @@ class Table {
     if (!Table.template)
       return;
       
-    const table = $(Table.template({ id: this.id, slogan: this.#slogan }));
+    const table = $(Table.template({ id: this.id, slogan: this.#state.slogan }));
 
     if (this.#holder) {
       let count = this.#holder.find('.draggable').length + 1;
@@ -160,8 +161,7 @@ class Table {
   }
 
   #remove_order(order) {
-    const indx = this.#get_order_index(order);
-    if (indx === -1 || !this.#element)
+    if (!this.#state.removeOrder(order) || !this.#element)
       return;
       
     const ord = this.#element.find(`.food-list .order${order.id}`);
@@ -169,20 +169,6 @@ class Table {
       return;
 
     ord.slideUp(() => ord.remove());
-    this.#orders.splice(indx, 1);
-  }
-
-  #get_order_index(order) {
-    let result = -1;
-
-    $.each(this.#orders, function(indx, ord) {
-      if (ord.id === order.id) {
-        result = indx;
-        return false;
-      }
-    });
-
-    return result;
   }
 
   #highlight_test(unhighlight = false) {
@@ -214,8 +200,12 @@ class Table {
   }
 
   #create_assistant_subscription() {
-    return (order) => {
-      if (!order || order.table_id !== this.id)
+    return (event) => {
+      if (!event || event.type !== APP_EVENTS.ASSISTANT_ORDER_COMPLETED)
+        return;
+
+      const { order, tableId } = event.payload;
+      if (!order || tableId !== this.id)
         return;
 
       this.receive_food(order);
@@ -229,7 +219,7 @@ class Table {
     const btn_unsubscribe = this.#element.find('.btn-unsubscribe');
     const btn_subscribe = this.#element.find('.btn-subscribe');
 
-    if (this.#is_subscribed) {
+    if (this.#state.isSubscribed()) {
       btn_subscribe.addClass('d-none');
       btn_unsubscribe.removeClass('d-none');
       return;
@@ -240,21 +230,19 @@ class Table {
   }
 
   subscribe_to_assistant() {
-    if (!this.#assistant || !this.#assistant_subscription || this.#is_subscribed)
+    if (!this.#assistant || !this.#assistant_subscription || !this.#state.markSubscribed())
       return false;
 
     this.#assistant.subscribe(this.#assistant_subscription);
-    this.#is_subscribed = true;
     this.#sync_subscription_buttons();
     return true;
   }
 
   unsubscribe_from_assistant() {
-    if (!this.#assistant || !this.#assistant_subscription || !this.#is_subscribed)
+    if (!this.#assistant || !this.#assistant_subscription || !this.#state.markUnsubscribed())
       return false;
 
     this.#assistant.unsubscribe(this.#assistant_subscription);
-    this.#is_subscribed = false;
     this.#sync_subscription_buttons();
     return true;
   }

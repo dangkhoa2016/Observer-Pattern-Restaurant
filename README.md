@@ -25,3 +25,5 @@ The suite now also covers:
 - Shared statuses, messages, timeouts, and log levels now live in `assets/js/utilities/constants.js`.
 - Logging is standardized through `assets/js/utilities/logger.js`, which supports log levels and can be silenced in tests.
 - Order dispatch rules stay in `assets/js/models/order-scheduler.js`, keeping assignment logic testable without DOM setup.
+- `assets/js/models/table-state.js` and `assets/js/models/chef-state.js` now own domain state for table orders/subscription and chef order/status transitions, while `Table` and `Chef` focus on UI binding and rendering.
+- `assets/js/models/food-list-state.js` now owns menu selection state, and cross-model communication now uses structured events defined in `assets/js/utilities/constants.js` via `APP_EVENTS`.
