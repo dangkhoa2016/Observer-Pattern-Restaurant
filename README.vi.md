@@ -7,6 +7,8 @@
 
 Để xem hướng dẫn từng bước, hãy mở bản tiếng Anh tại [How_it_work.md](./How_it_work.md) hoặc bản tiếng Việt tại [How_it_work.vi.md](./How_it_work.vi.md).
 
+Để đối chiếu nhanh giữa bản plain JavaScript và bản Vue 2, hãy xem [PARITY_GUIDE.vi.md](./PARITY_GUIDE.vi.md) hoặc bản tiếng Anh [PARITY_GUIDE.md](./PARITY_GUIDE.md).
+
 ## Công nghệ sử dụng
 - HTML5 để dựng khung trang và nạp các static asset.
 - CSS3 và Bootstrap 5 cho layout, modal, tooltip, card, và thanh tiến trình.

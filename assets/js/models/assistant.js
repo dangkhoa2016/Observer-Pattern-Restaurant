@@ -25,11 +25,15 @@ class Assistant extends Observable {
     t.#subscribe_to_chefs(chefs);
   }
 
-  add_orders(table_id, orders) {
-    this.#highlight_test(`Received ${orders.length} order(s) from Table [${table_id}]`);
+  addOrders(tableId, orders) {
+    this.#highlight_test(`Received ${orders.length} order(s) from Table [${tableId}]`);
     this.#scheduler.enqueue(orders || []);
-    Logger.info(`Received ${orders.length} order(s)`, orders, 'from table', table_id, 'total', this.#scheduler.size);
+    Logger.info(`Received ${orders.length} order(s)`, orders, 'from table', tableId, 'total', this.#scheduler.size);
     this.#schedule_dispatch();
+  }
+
+  add_orders(table_id, orders) {
+    return this.addOrders(table_id, orders);
   }
 
   destroy() {
@@ -220,7 +224,10 @@ class Assistant extends Observable {
     if (chef.status === Chef.STATUS.IDLE) {
       Logger.info(`Send Order [${order.id}] to Chef [${chef.id}]`);
       t.#add_info(chef.id, order, 'warning bg-opacity-75', 'received');
-      chef.process_order(order);
+      const processOrder = typeof chef.processOrder === 'function'
+        ? chef.processOrder.bind(chef)
+        : chef.process_order.bind(chef);
+      processOrder(order);
       return;
     }
 

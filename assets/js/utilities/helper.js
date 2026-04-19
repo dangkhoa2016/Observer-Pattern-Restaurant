@@ -1,12 +1,12 @@
 class Helper {
-  static #food_colors = [
+  static #foodColors = [
     { css: 'bg-secondary text-white', bg: '#6c757d' },
     { css: 'bg-secondary2 text-white', bg: '#9a9fa4' },
     { css: 'bg-secondary3 text-white', bg: '#767779' },
     { css: 'bg-secondary4 text-white', bg: '#c5c5c5' },
     { css: 'bg-dark text-white', bg: '#343a40' }
   ];
-  static #progress_colors = [
+  static #progressColors = [
     { css: 'bg-primary text-white', bg: '#007bff' },
     { css: 'bg-secondary text-white', bg: '#6c757d' },
     { css: 'bg-success text-white', bg: '#28a745' },
@@ -15,17 +15,17 @@ class Helper {
     { css: 'bg-info text-white', bg: '#17a2b8' },
     { css: 'bg-dark text-white', bg: '#343a40' }
   ];
-  static #color_index = -1;
-  static #color_pg_index = -1;
+  static #colorIndex = -1;
+  static #progressColorIndex = -1;
 
 
   static shuffle() {
-    this.#shuffle_array(this.#progress_colors);
-    this.#shuffle_array(this.#food_colors);
+    this.#shuffleArray(this.#progressColors);
+    this.#shuffleArray(this.#foodColors);
   }
 
   /* Randomize array in-place using Durstenfeld shuffle algorithm */
-  static #shuffle_array(array) {
+  static #shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       const temp = array[i];
@@ -34,30 +34,46 @@ class Helper {
     }
   }
 
+  static randomColor() {
+    return this.random_color();
+  }
+
   static random_color() {
-    if (this.#color_index > this.#food_colors.length - 1)
-      this.#color_index = -1;
+    if (this.#colorIndex > this.#foodColors.length - 1)
+      this.#colorIndex = -1;
 
-    this.#color_index += 1;
+    this.#colorIndex += 1;
 
-    var color = this.#food_colors[this.#color_index];
-    if (!color) return this.random_color();
-    else return color;
+    const color = this.#foodColors[this.#colorIndex];
+    if (!color)
+      return this.randomColor();
+
+    return color;
+  }
+
+  static randomProgressColor() {
+    return this.random_progress_color();
   }
 
   static random_progress_color() {
-    if (this.#color_pg_index > this.#progress_colors.length - 1)
-      this.#color_pg_index = -1;
+    if (this.#progressColorIndex > this.#progressColors.length - 1)
+      this.#progressColorIndex = -1;
 
-    this.#color_pg_index += 1;
+    this.#progressColorIndex += 1;
     let n = Math.floor(Math.random() * 3);
     if (n > 0) {
       const is_negative = Math.floor(Math.random() * 100) > 50;
       if (is_negative) n = 0 - n;
     }
-    const color = this.#progress_colors[this.#color_pg_index];
-    if (!color) return this.random_progress_color();
-    else return this.color_shade(color.bg, 40 * n);
+    const color = this.#progressColors[this.#progressColorIndex];
+    if (!color)
+      return this.randomProgressColor();
+
+    return this.colorShade(color.bg, 40 * n);
+  }
+
+  static randomColorCore() {
+    return this.random_color_core();
   }
 
   static random_color_core() {
@@ -67,6 +83,10 @@ class Helper {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+  }
+
+  static hexToRgba(str, dec) {
+    return this.hex_to_rgba(str, dec);
   }
 
   static hex_to_rgba(str, dec) {
@@ -84,6 +104,10 @@ class Helper {
     }
 
     return false;
+  }
+
+  static colorShade(col, amt) {
+    return this.color_shade(col, amt);
   }
 
   static color_shade(col, amt) {
@@ -107,6 +131,10 @@ class Helper {
     const bb = (b.length < 2 ? '0' : '') + b;
 
     return `#${rr}${gg}${bb}`;
+  }
+
+  static randomProgressParts(number) {
+    return this.random_progress_test(number);
   }
 
   static random_progress_test(number) {

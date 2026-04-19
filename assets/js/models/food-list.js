@@ -10,7 +10,7 @@ class FoodList extends Observable {
     this.foods = [];
   }
 
-  show_menu_for(table) {
+  showMenuFor(table) {
     if (!this.#view.hasList())
       return;
 
@@ -18,6 +18,10 @@ class FoodList extends Observable {
     this.#sync_food_selection();
 
     this.#view.show();
+  }
+
+  show_menu_for(table) {
+    return this.showMenuFor(table);
   }
 
   async render() {

@@ -23,29 +23,33 @@ class Chef extends Observable {
     return this.#state.status;
   }
 
-  process_order(order) {
+  processOrder(order) {
     const t = this;
     if (!t.#state.startOrder(order))
       return false;
 
     t.#sync_processing_ui();
 
-    const time_to_complete = Math.floor(Math.random() * 30) + 1;
+    const timeToComplete = Math.floor(Math.random() * 30) + 1;
     t.#progress.push(
       new Progress({
         html: `Preparing <strong>${order.food.name}</strong>`,
         holder: t.#view.getCookProgressHolder(),
-        time_to_complete,
-        call_back_complete: function(progress) {
+        timeToComplete,
+        onComplete: function(progress) {
           t.#complete_order();
-          const indx_pg = t.#progress.indexOf(progress);
-          if (indx_pg !== -1) t.#progress.splice(indx_pg, 1);
+          const progressIndex = t.#progress.indexOf(progress);
+          if (progressIndex !== -1) t.#progress.splice(progressIndex, 1);
           progress.destroy();
         }
       })
     );
 
     return true;
+  }
+
+  process_order(order) {
+    return this.processOrder(order);
   }
 
   destroy() {

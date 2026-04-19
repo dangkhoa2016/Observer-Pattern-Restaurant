@@ -23,10 +23,14 @@ class Restaurant {
     this.tables = [];
   }
 
-  add_table() {
+  addTable() {
     const t = this;
+    const showConfirm = t.#panel_action && typeof t.#panel_action.showConfirm === 'function'
+      ? t.#panel_action.showConfirm.bind(t.#panel_action)
+      : t.#panel_action.show_confirm.bind(t.#panel_action);
+
     const fn_remove = function(table) {
-      t.#panel_action.show_confirm(
+      showConfirm(
         APP_MESSAGES.TABLE_REMOVE_CONFIRM,
         function() {
           t.#remove_table(table);
@@ -43,6 +47,10 @@ class Restaurant {
     });
 
     t.tables.push(tb);
+  }
+
+  add_table() {
+    return this.addTable();
   }
 
   async init() {
@@ -108,11 +116,19 @@ class Restaurant {
         return;
 
       const { tableId, orders } = event.payload;
-      t.#assistant.add_orders(tableId, orders);
+      const addOrdersToAssistant = typeof t.#assistant.addOrders === 'function'
+        ? t.#assistant.addOrders.bind(t.#assistant)
+        : t.#assistant.add_orders.bind(t.#assistant);
+
+      addOrdersToAssistant(tableId, orders);
 
       const table = t.tables.find(currentTable => currentTable.id === tableId);
-      if (table)
-        table.add_orders(orders);
+      if (table) {
+        const addOrdersToTable = Object.prototype.hasOwnProperty.call(table, 'add_orders')
+          ? table.add_orders
+          : table.addOrders;
+        addOrdersToTable.call(table, orders);
+      }
     });
     await t.food_list.render();
   }

@@ -32,23 +32,27 @@ class Table {
     });
 
     this.#init_table();
-    this.subscribe_to_assistant();
+    this.subscribeToAssistant();
   }
 
   destroy() {
-    this.unsubscribe_from_assistant();
+    this.unsubscribeFromAssistant();
     this.#progress.slice().forEach(progress => progress.destroy());
     this.#progress = [];
     this.#state.clear();
     this.#view.destroy();
   }
 
-  add_orders(orders) {
+  addOrders(orders) {
     this.#state.addOrders(orders || []);
     this.#render_foods(orders);
   }
 
-  receive_food(order) {
+  add_orders(orders) {
+    return this.addOrders(orders);
+  }
+
+  receiveFood(order) {
     const t = this;
 
     t.#view.highlight(APP_TIMEOUTS.TABLE_HIGHLIGHT_MS);
@@ -56,17 +60,17 @@ class Table {
     if (!t.#state.hasOrder(order))
       return;
 
-    const time_to_complete = Math.floor(Math.random() * 30) + 1;
+    const timeToComplete = Math.floor(Math.random() * 30) + 1;
     t.#progress.push(
       new Progress({
         icon: 'fas fa-check-double',
         html: `Enjoying the dish...`,
         holder: t.#view.getEatProgressHolder(order.id),
-        time_to_complete,
+        timeToComplete,
         reference: order,
-        call_back_complete: function(progress, ord) {
-          const indx_pg = t.#progress.indexOf(progress);
-          if (indx_pg !== -1) t.#progress.splice(indx_pg, 1);
+        onComplete: function(progress, ord) {
+          const progressIndex = t.#progress.indexOf(progress);
+          if (progressIndex !== -1) t.#progress.splice(progressIndex, 1);
           t.#remove_order(ord);
 
           progress.destroy();
@@ -75,18 +79,27 @@ class Table {
     );
   }
 
+  receive_food(order) {
+    return this.receiveFood(order);
+  }
+
 
   // private methods
 
   #init_table() {
     this.#view.initInteractions({
-      onAddFoods: () => this.#food_list.show_menu_for(this),
+      onAddFoods: () => {
+        const showMenuFor = this.#food_list && typeof this.#food_list.showMenuFor === 'function'
+          ? this.#food_list.showMenuFor.bind(this.#food_list)
+          : this.#food_list.show_menu_for.bind(this.#food_list);
+        showMenuFor(this);
+      },
       onRemove: () => {
         if (this.#fn_remove) this.#fn_remove(this);
       },
       onToggleSubscription: subscribe => {
-        if (subscribe) this.subscribe_to_assistant();
-        else this.unsubscribe_from_assistant();
+        if (subscribe) this.subscribeToAssistant();
+        else this.unsubscribeFromAssistant();
 
         this.#sync_subscription_buttons();
       }
@@ -113,7 +126,10 @@ class Table {
       if (!order || tableId !== this.id)
         return;
 
-      this.receive_food(order);
+      const receiveFood = Object.prototype.hasOwnProperty.call(this, 'receive_food')
+        ? this.receive_food
+        : this.receiveFood;
+      receiveFood.call(this, order);
     };
   }
 
@@ -121,7 +137,7 @@ class Table {
     this.#view.syncSubscriptionButtons(this.#state.isSubscribed());
   }
 
-  subscribe_to_assistant() {
+  subscribeToAssistant() {
     if (!this.#assistant || !this.#assistant_subscription || !this.#state.markSubscribed())
       return false;
 
@@ -130,13 +146,21 @@ class Table {
     return true;
   }
 
-  unsubscribe_from_assistant() {
+  subscribe_to_assistant() {
+    return this.subscribeToAssistant();
+  }
+
+  unsubscribeFromAssistant() {
     if (!this.#assistant || !this.#assistant_subscription || !this.#state.markUnsubscribed())
       return false;
 
     this.#assistant.unsubscribe(this.#assistant_subscription);
     this.#sync_subscription_buttons();
     return true;
+  }
+
+  unsubscribe_from_assistant() {
+    return this.unsubscribeFromAssistant();
   }
 
   static #random_slogan() {

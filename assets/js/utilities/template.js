@@ -18,8 +18,8 @@ class Template {
         Assistant.template = Handlebars.compile(coll.filter('#tmp-assistant').html());
         Assistant.template_receive = Handlebars.compile(coll.filter('#tmp-assistant-receive').html());
         Assistant.template_info = Assistant.template_receive;
-        Progress.template_pg = Handlebars.compile(coll.filter('#tmp-progress').html());
-        Progress.template_pg_bar = Handlebars.compile(coll.filter('#tmp-progress-bar').html());
+        Progress.templateProgress = Handlebars.compile(coll.filter('#tmp-progress').html());
+        Progress.templateProgressBar = Handlebars.compile(coll.filter('#tmp-progress-bar').html());
       }
 
       await this.#render_parts();

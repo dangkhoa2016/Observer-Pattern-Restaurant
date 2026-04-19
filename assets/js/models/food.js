@@ -87,7 +87,7 @@ class Food {
     );
     */
     arr_style.push(
-      `${class_name}.focus { box-shadow: 0 0 0 0.2rem ${Helper.hex_to_rgba(
+      `${class_name}.focus { box-shadow: 0 0 0 0.2rem ${Helper.hexToRgba(
         this.color.bg, '.25'
       )} !important; }`
     );
@@ -109,23 +109,23 @@ class Food {
   }
 
   #get_color() {
-    let color = Helper.random_color();
-    let bg_color = Helper.color_shade(color.bg, 40);
-    let hover_color = Helper.color_shade(color.bg, 80);
+    let color = Helper.randomColor();
+    let bgColor = Helper.colorShade(color.bg, 40);
+    let hoverColor = Helper.colorShade(color.bg, 80);
     while (
-      hover_color.toLowerCase() === '#fff' ||
-      hover_color.toLowerCase() === '#ffffff' ||
-      bg_color.toLowerCase() === '#fff' ||
-      bg_color.toLowerCase() === '#ffffff'
+      hoverColor.toLowerCase() === '#fff' ||
+      hoverColor.toLowerCase() === '#ffffff' ||
+      bgColor.toLowerCase() === '#fff' ||
+      bgColor.toLowerCase() === '#ffffff'
     ) {
-      color = Helper.random_color();
-      bg_color = Helper.color_shade(color.bg, 40);
-      hover_color = Helper.color_shade(color.bg, 80);
+      color = Helper.randomColor();
+      bgColor = Helper.colorShade(color.bg, 40);
+      hoverColor = Helper.colorShade(color.bg, 80);
     }
 
     this.color = color;
-    this.#bg_color = bg_color;
-    this.#hover_color = hover_color;
+    this.#bg_color = bgColor;
+    this.#hover_color = hoverColor;
   }
 
   // private methods

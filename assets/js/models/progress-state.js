@@ -1,26 +1,26 @@
 class ProgressState {
-  #time_to_complete = 1000;
+  #timeToComplete = 1000;
   #parts = [];
-  #current_part_index = 0;
+  #currentPartIndex = 0;
 
   constructor(options = {}) {
-    this.#time_to_complete = options.time_to_complete_ms || 3000;
+    this.#timeToComplete = options.timeToCompleteMs || options.time_to_complete_ms || 3000;
     this.#parts = Array.isArray(options.parts) ? [...options.parts] : [];
   }
 
   getCurrentPartIndex() {
-    return this.#current_part_index;
+    return this.#currentPartIndex;
   }
 
   hasRemainingParts() {
-    return this.#current_part_index < this.#parts.length;
+    return this.#currentPartIndex < this.#parts.length;
   }
 
   getCurrentPercent() {
     if (!this.hasRemainingParts())
       return null;
 
-    return this.#parts[this.#current_part_index];
+    return this.#parts[this.#currentPartIndex];
   }
 
   getCurrentDelay() {
@@ -28,7 +28,7 @@ class ProgressState {
     if (percent === null)
       return 0;
 
-    return (percent * this.#time_to_complete) / 100;
+    return (percent * this.#timeToComplete) / 100;
   }
 
   advance() {
@@ -36,7 +36,7 @@ class ProgressState {
     if (percent === null)
       return null;
 
-    this.#current_part_index += 1;
+    this.#currentPartIndex += 1;
     return percent;
   }
 }

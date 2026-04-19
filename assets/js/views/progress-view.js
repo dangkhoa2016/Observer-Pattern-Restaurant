@@ -9,11 +9,12 @@ class ProgressView {
   }
 
   #render(options) {
-    if (!Progress.template_pg)
+    const templateProgress = Progress.templateProgress || Progress.template_pg;
+    if (!templateProgress)
       return;
 
     const progress = $(
-      Progress.template_pg({
+      templateProgress({
         icon: options.icon,
         html: options.html
       })
@@ -25,12 +26,13 @@ class ProgressView {
     if (!this.#holder)
       return;
 
+    const templateProgressBar = Progress.templateProgressBar || Progress.template_pg_bar;
     (options.parts || []).forEach(() => {
-      const pgBar = Progress.template_pg_bar({
-        color: Helper.random_progress_color(),
+      const progressBar = templateProgressBar({
+        color: Helper.randomProgressColor(),
         percent: 0
       });
-      progress.find('.progress').append(pgBar);
+      progress.find('.progress').append(progressBar);
     });
 
     this.#element = progress;

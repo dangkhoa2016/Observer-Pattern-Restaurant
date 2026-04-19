@@ -2,26 +2,42 @@ class Progress {
   static template_pg = null;
   static template_pg_bar = null;
 
+  static get templateProgress() {
+    return this.template_pg;
+  }
+
+  static set templateProgress(value) {
+    this.template_pg = value;
+  }
+
+  static get templateProgressBar() {
+    return this.template_pg_bar;
+  }
+
+  static set templateProgressBar(value) {
+    this.template_pg_bar = value;
+  }
+
   #state = null;
   #view = null;
-  #timeout_next = null;
-  #call_back_complete = null;
+  #timeoutNext = null;
+  #onComplete = null;
   #html = 'Doing...';
   #icon = 'fas fa-clipboard-check';
   #reference = null;
-  #timeout_complete = null;
+  #completeTimeout = null;
 
   constructor(options = {}) {
-    this.#call_back_complete = options.call_back_complete;
+    this.#onComplete = options.onComplete || options.call_back_complete;
     this.#reference = options.reference;
     if (options.html && typeof options.html === 'string')
       this.#html = options.html;
     if (options.icon && typeof options.icon === 'string')
       this.#icon = options.icon;
 
-    const parts = Helper.random_progress_test(100);
+    const parts = Helper.randomProgressParts(100);
     this.#state = new ProgressState({
-      time_to_complete_ms: (options.time_to_complete || 3) * 1000,
+      timeToCompleteMs: (options.timeToComplete || options.time_to_complete || 3) * 1000,
       parts
     });
     this.#view = new ProgressView({
@@ -30,14 +46,14 @@ class Progress {
       icon: this.#icon,
       parts
     });
-    this.#bind_click();
-    this.#do_step();
+    this.#bindClick();
+    this.#runStep();
   }
 
   destroy() {
     const t = this;
-    t.#clear_timeout();
-    t.#clear_complete_timeout();
+    t.#clearTimeout();
+    t.#clearCompleteTimeout();
     if (t.#view) {
       t.#view.destroy();
       t.#view = null;
@@ -47,7 +63,7 @@ class Progress {
 
   // private methods
 
-  #complete_part(skip_timeout = false) {
+  #completePart(skipTimeout = false) {
     if (!this.#state || !this.#view)
       return;
 
@@ -57,73 +73,73 @@ class Progress {
       return;
 
     this.#view.updatePart(partIndex, percent);
-    this.#do_step(skip_timeout);
+    this.#runStep(skipTimeout);
   }
 
-  #do_step(skip_timeout = false) {
+  #runStep(skipTimeout = false) {
     if (!this.#state || !this.#state.hasRemainingParts()) {
-      this.#call_complete();
+      this.#invokeComplete();
       return;
     }
 
-    if (skip_timeout) {
-      this.#clear_timeout();
-      this.#complete_part(skip_timeout);
+    if (skipTimeout) {
+      this.#clearTimeout();
+      this.#completePart(skipTimeout);
       return;
     }
     
-    this.#timeout_next = setTimeout(() => {
-      this.#complete_part();
+    this.#timeoutNext = setTimeout(() => {
+      this.#completePart();
     }, this.#state.getCurrentDelay());
   }
 
-  #call_complete() {
+  #invokeComplete() {
     const t = this;
-    const call_func = function() {
-      if (typeof t.#call_back_complete === 'function')
-        t.#call_back_complete(t, t.#reference);
+    const callFunc = function() {
+      if (typeof t.#onComplete === 'function')
+        t.#onComplete(t, t.#reference);
     };
 
     if (t.#view) {
-      t.#timeout_complete = setTimeout(() => {
-        t.#timeout_complete = null;
+      t.#completeTimeout = setTimeout(() => {
+        t.#completeTimeout = null;
         if (!t.#view) {
-          call_func();
+          callFunc();
           return;
         }
 
-        t.#view.completeWithDelay(() => { call_func(); });
+        t.#view.completeWithDelay(() => { callFunc(); });
       }, APP_TIMEOUTS.PROGRESS_COMPLETE_DELAY_MS);
       return;
     }
 
-    call_func();
+    callFunc();
   }
 
-  #clear_timeout() {
-    if (!this.#timeout_next)
+  #clearTimeout() {
+    if (!this.#timeoutNext)
       return;
 
-    clearTimeout(this.#timeout_next);
-    this.#timeout_next = null;
+    clearTimeout(this.#timeoutNext);
+    this.#timeoutNext = null;
   }
 
-  #clear_complete_timeout() {
-    if (!this.#timeout_complete)
+  #clearCompleteTimeout() {
+    if (!this.#completeTimeout)
       return;
 
-    clearTimeout(this.#timeout_complete);
-    this.#timeout_complete = null;
+    clearTimeout(this.#completeTimeout);
+    this.#completeTimeout = null;
   }
 
-  #bind_click() {
+  #bindClick() {
     if (!this.#view)
       return;
 
     this.#view.bindComplete(() => {
       this.#view.disposeButtonTooltip();
-      this.#clear_timeout();
-      this.#do_step(true);
+      this.#clearTimeout();
+      this.#runStep(true);
     });
   }
 

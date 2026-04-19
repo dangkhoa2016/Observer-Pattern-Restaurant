@@ -7,6 +7,8 @@ This project is a browser-based jQuery demo that simulates a restaurant workflow
 
 For a step-by-step walkthrough, see the English guide [How_it_work.md](./How_it_work.md) or the Vietnamese version [How_it_work.vi.md](./How_it_work.vi.md).
 
+For a cross-project mapping between the plain JavaScript and Vue 2 implementations, see [PARITY_GUIDE.md](./PARITY_GUIDE.md) or the Vietnamese version [PARITY_GUIDE.vi.md](./PARITY_GUIDE.vi.md).
+
 ## Technologies Used
 - HTML5 for the page shell and static asset loading.
 - CSS3 and Bootstrap 5 for layout, modals, tooltips, cards, and progress styling.

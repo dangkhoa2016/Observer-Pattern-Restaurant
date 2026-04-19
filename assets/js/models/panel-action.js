@@ -15,7 +15,7 @@ class PanelAction {
     this.#render();
   }
 
-  show_confirm(msg, cb) {
+  showConfirm(msg, cb) {
     const t = this;
 
     if (typeof cb === 'function') t.#call_back = cb;
@@ -25,6 +25,10 @@ class PanelAction {
       .html(msg)
       .end()
       .modal('show');
+  }
+
+  show_confirm(msg, cb) {
+    return this.showConfirm(msg, cb);
   }
 
   destroy() {
@@ -71,7 +75,10 @@ class PanelAction {
       .on('click.panel-action', function(e) {
         e.preventDefault();
 
-        t.#restaurant.add_table();
+        const addTable = typeof t.#restaurant.addTable === 'function'
+          ? t.#restaurant.addTable.bind(t.#restaurant)
+          : t.#restaurant.add_table.bind(t.#restaurant);
+        addTable();
       });
   }
 
