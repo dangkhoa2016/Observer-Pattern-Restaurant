@@ -65,59 +65,9 @@ flowchart TD
 
 The application loads utilities, views, and model scripts directly from `index.html`; the bootstrap script creates the restaurant workflow, template utilities pull reusable HTML partials, and the food list loads menu data from JSON.
 
-## Screenshots
+## Walkthrough
 
-### Main UI states
-
-Initial screen after the app loads:
-
-![Initial screen](./screenshots/first-load.png)
-
-Adding a new table from the control panel:
-
-![Add table](./screenshots/add-table.png)
-
-Selecting dishes for a table from the popup dialog:
-
-![Add dishes dialog](./screenshots/add-dishes.png)
-
-Confirming table removal:
-
-![Confirm delete dialog](./screenshots/confirm-delete.png)
-
-Subscription and removal action tooltips:
-
-![Tooltip actions](./screenshots/tooltip.png)
-
-### Observer workflow sequence
-
-Orders are picked up and distributed to the chefs:
-
-![Process step 1](./screenshots/process-1.png)
-
-The assistant relays completed dish updates back to subscribed tables:
-
-![Process step 2](./screenshots/process-2.png)
-
-Multiple chef updates can reach different tables in parallel:
-
-![Process step 3](./screenshots/process-3.png)
-
-The activity log records pickup and completion events:
-
-![Process step 4](./screenshots/process-4.png)
-
-Tables continue receiving updates while chefs process the queue:
-
-![Process step 5](./screenshots/process-5.png)
-
-Another completed dish is broadcast to the subscribed tables:
-
-![Process step 6](./screenshots/process-6.png)
-
-The workflow finishes with updated table state and assistant logs:
-
-![Process step 7](./screenshots/process-7.png)
+For the full screen-by-screen walkthrough, tooltip examples, and workflow sequence, see [How_it_work.md](./How_it_work.md) or the Vietnamese version [How_it_work.vi.md](./How_it_work.vi.md).
 
 ## Architecture Notes
 - Shared observer behavior now lives in `assets/js/utilities/observable.js` and is reused by Assistant, Chef, and FoodList.

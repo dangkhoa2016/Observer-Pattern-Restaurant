@@ -65,59 +65,9 @@ flowchart TD
 
 Ứng dụng nạp trực tiếp utilities, views, và model scripts từ `index.html`; file bootstrap tạo luồng restaurant, utility template lấy các HTML partial dùng lại được, và food list nạp dữ liệu món ăn từ JSON.
 
-## Ảnh chụp màn hình
+## Hướng dẫn chi tiết
 
-### Các trạng thái chính của giao diện
-
-Màn hình ban đầu sau khi ứng dụng tải xong:
-
-![Màn hình ban đầu](./screenshots/first-load.png)
-
-Thêm bàn mới từ bảng điều khiển:
-
-![Thêm bàn](./screenshots/add-table.png)
-
-Chọn món trong hộp thoại popup của bàn:
-
-![Hộp thoại chọn món](./screenshots/add-dishes.png)
-
-Xác nhận xóa bàn:
-
-![Hộp thoại xác nhận xóa](./screenshots/confirm-delete.png)
-
-Tooltip cho thao tác đăng ký nhận thông báo và xóa bàn:
-
-![Tooltip thao tác](./screenshots/tooltip.png)
-
-### Chuỗi quy trình Observer
-
-Đơn hàng được nhận và phân phối tới các đầu bếp:
-
-![Bước quy trình 1](./screenshots/process-1.png)
-
-Assistant chuyển tiếp thông báo món hoàn tất về các bàn đã đăng ký:
-
-![Bước quy trình 2](./screenshots/process-2.png)
-
-Nhiều cập nhật từ bếp có thể đến các bàn cùng lúc:
-
-![Bước quy trình 3](./screenshots/process-3.png)
-
-Nhật ký hoạt động ghi lại các lần nhận món và hoàn tất món:
-
-![Bước quy trình 4](./screenshots/process-4.png)
-
-Các bàn tiếp tục nhận cập nhật trong khi đầu bếp xử lý hàng đợi:
-
-![Bước quy trình 5](./screenshots/process-5.png)
-
-Một món hoàn tất khác tiếp tục được broadcast tới các bàn đã đăng ký:
-
-![Bước quy trình 6](./screenshots/process-6.png)
-
-Quy trình kết thúc với trạng thái bàn và nhật ký assistant đã được cập nhật:
-
-![Bước quy trình 7](./screenshots/process-7.png)
+Để xem đầy đủ ảnh chụp màn hình theo từng bước, ví dụ tooltip, và toàn bộ chuỗi workflow, hãy mở [How_it_work.vi.md](./How_it_work.vi.md) hoặc bản tiếng Anh [How_it_work.md](./How_it_work.md).
 
 ## Ghi chú kiến trúc
 - Hành vi observer dùng chung hiện nằm trong `assets/js/utilities/observable.js` và được Assistant, Chef, và FoodList tái sử dụng.
